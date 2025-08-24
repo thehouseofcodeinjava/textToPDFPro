@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextToPDF Pro - Convert Text to PDF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .text-area-section {
+            padding: 30px;
+        }
+
+        .text-area-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        #textInput {
+            width: 100%;
+            height: 500px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            font-family: 'Georgia', serif;
+            transition: border-color 0.3s ease;
+        }
+
+        #textInput:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .controls-panel {
+            background: #f8f9fa;
+            padding: 30px;
+            border-left: 1px solid #e1e5e9;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4facfe;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 90, 36, 0.3);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .debug-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .debug-info h4 {
+            color: #0066cc;
+            margin-bottom: 8px;
+        }
+
+        #debugOutput {
+            color: #0066cc;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            #textInput {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 TextToPDF Pro</h1>
+            <p>Transform text into PDF documents instantly</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="text-area-section">
+                <div class="text-area-label">📝 Paste your text content here</div>
+                <textarea id="textInput" placeholder="Paste your text here and click Generate PDF to create a downloadable PDF document...
+
+Try pasting some content like:
+- Essays or reports  
+- Meeting notes
+- Articles or blog posts
+- Any text you want to convert to PDF
+
+This tool works completely in your browser - no uploads needed!"></textarea>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number" id="wordCount">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="charCount">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                </div>
+
+                <div class="debug-info">
+                    <h4>🔧 System Status</h4>
+                    <div id="debugOutput">Checking PDF library...</div>
+                </div>
+
+                <div class="control-group">
+                    <label>📖 Document Title (Optional)</label>
+                    <input type="text" id="docTitle" placeholder="Enter document title">
+                </div>
+
+                <div class="control-group">
+                    <label>📏 Font Size</label>
+                    <select id="fontSize">
+                        <option value="10">10pt</option>
+                        <option value="12" selected>12pt</option>
+                        <option value="14">14pt</option>
+                        <option value="16">16pt</option>
+                    </select>
+                </div>
+
+                <button class="generate-btn" onclick="testAndGenerate()" id="generateBtn">
+                    🚀 Generate PDF Document
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load jsPDF with fallback CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
+            onerror="loadFallbackJsPDF()"></script>
+    <script>
+        const textInput = document.getElementById('textInput');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const debugOutput = document.getElementById('debugOutput');
+
+        // Fallback loader for jsPDF
+        function loadFallbackJsPDF() {
+            debugOutput.innerHTML = '🔄 Loading PDF library from backup source...';
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
+            script.onload = () => {
+                setTimeout(checkLibraries, 500);
+            };
+            script.onerror = () => {
+                debugOutput.innerHTML = '❌ Failed to load PDF library from all sources';
+                showManualPDFOption();
+            };
+            document.head.appendChild(script);
+        }
+
+        // Show manual PDF creation option if library fails
+        function showManualPDFOption() {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.textContent = '📄 Create Manual PDF';
+            generateBtn.onclick = createManualPDF;
+            generateBtn.disabled = false;
+        }
+
+        // Manual PDF creation using browser print
+        function createManualPDF() {
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('Please enter some text first!');
+                return;
+            }
+
+            const docTitle = document.getElementById('docTitle').value.trim();
+            const fontSize = document.getElementById('fontSize').value;
+
+            // Create a new window with formatted content
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${docTitle || 'Document'}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            font-size: ${fontSize}pt;
+                            line-height: 1.6;
+                            margin: 1in;
+                            max-width: 8.5in;
+                        }
+                        h1 {
+                            text-align: center;
+                            margin-bottom: 2em;
+                            font-size: ${parseInt(fontSize) + 4}pt;
+                        }
+                        .content {
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                        }
+                        @media print {
+                            body { margin: 0.5in; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${docTitle ? `<h1>${docTitle}</h1>` : ''}
+                    <div class="content">${text}</div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+
+            // Auto-trigger print dialog
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+            }, 1000);
+
+            alert('A new window opened with your formatted document. Use Ctrl+P (or Cmd+P on Mac) to save as PDF!');
+        }
+
+        // Test if libraries are loaded
+        function checkLibraries() {
+            if (typeof window.jspdf !== 'undefined') {
+                debugOutput.innerHTML = '✅ PDF library loaded successfully';
+                debugOutput.style.color = 'green';
+                return true;
+            } else {
+                debugOutput.innerHTML = '❌ PDF library not loaded - will use manual method';
+                debugOutput.style.color = 'orange';
+                showManualPDFOption();
+                return false;
+            }
+        }
+
+        // Update stats in real-time
+        textInput.addEventListener('input', updateStats);
+
+        function updateStats() {
+            const text = textInput.value;
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const chars = text.length;
+
+            wordCount.textContent = words.toLocaleString();
+            charCount.textContent = chars.toLocaleString();
+
+            document.getElementById('generateBtn').disabled = text.trim().length === 0;
+        }
+
+        function testAndGenerate() {
+            const generateBtn = document.getElementById('generateBtn');
+            debugOutput.innerHTML = '🔄 Testing PDF generation...';
+            
+            // First, test if we can create a simple PDF
+            try {
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF library not loaded');
+                }
+
+                const { jsPDF } = window.jspdf;
+                const testDoc = new jsPDF();
+                
+                debugOutput.innerHTML = '✅ PDF library working, generating document...';
+                generatePDF();
+                
+            } catch (error) {
+                debugOutput.innerHTML = `❌ Error: ${error.message}`;
+                alert(`PDF generation failed: ${error.message}\n\nPlease refresh the page and try again.`);
+            }
+        }
+
+        function generatePDF() {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter some text before generating PDF!');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.textContent = '🔄 Generating PDF...';
+            generateBtn.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Get settings
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+                const docTitle = document.getElementById('docTitle').value.trim();
+
+                // Set font and size
+                doc.setFont('helvetica');
+                doc.setFontSize(fontSize);
+
+                // Page settings
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 40;
+                const maxWidth = pageWidth - (margin * 2);
+                const lineHeight = fontSize * 1.2;
+
+                let yPosition = margin;
+
+                // Add title if provided
+                if (docTitle) {
+                    doc.setFontSize(fontSize + 4);
+                    doc.text(docTitle, pageWidth / 2, yPosition, { align: 'center' });
+                    yPosition += lineHeight * 2;
+                    doc.setFontSize(fontSize);
+                }
+
+                // Split text into lines
+                const lines = doc.splitTextToSize(text, maxWidth);
+                
+                // Add lines to PDF
+                for (let i = 0; i < lines.length; i++) {
+                    // Check if we need a new page
+                    if (yPosition + lineHeight > pageHeight - margin) {
+                        doc.addPage();
+                        yPosition = margin;
+                    }
+                    
+                    doc.text(lines[i], margin, yPosition);
+                    yPosition += lineHeight;
+                }
+
+                // Generate filename
+                const timestamp = new Date().toISOString().slice(0, 10);
+                const filename = docTitle ? 
+                    `${docTitle.replace(/[^a-zA-Z0-9]/g, '_')}.pdf` : 
+                    `document_${timestamp}.pdf`;
+
+                // Save PDF
+                doc.save(filename);
+
+                // Success feedback
+                debugOutput.innerHTML = '✅ PDF generated successfully!';
+                generateBtn.textContent = '✅ PDF Generated!';
+                generateBtn.style.background = 'linear-gradient(135deg, #00b894, #00a085)';
+                
+                setTimeout(() => {
+                    generateBtn.textContent = '🚀 Generate PDF Document';
+                    generateBtn.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+                    generateBtn.disabled = false;
+                }, 3000);
+
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                debugOutput.innerHTML = `❌ Error: ${error.message}`;
+                alert(`Error generating PDF: ${error.message}`);
+                generateBtn.textContent = '🚀 Generate PDF Document';
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Check library status on load
+        setTimeout(() => {
+            checkLibraries();
+            updateStats();
+        }, 1000);
+
+        // Recheck every few seconds until loaded
+        const checkInterval = setInterval(() => {
+            if (checkLibraries()) {
+                clearInterval(checkInterval);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
