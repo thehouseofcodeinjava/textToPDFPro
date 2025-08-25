@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TextToPDF Pro - Convert Text to PDF</title>
+    <title>TextToPDF Pro - Advanced Text to PDF Converter</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -46,7 +46,7 @@
 
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 1fr 350px;
             gap: 0;
             min-height: 600px;
         }
@@ -69,7 +69,7 @@
             border: 2px solid #e1e5e9;
             border-radius: 12px;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.5;
             resize: vertical;
             font-family: 'Georgia', serif;
             transition: border-color 0.3s ease;
@@ -85,34 +85,75 @@
             background: #f8f9fa;
             padding: 30px;
             border-left: 1px solid #e1e5e9;
+            overflow-y: auto;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .control-section h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .control-group {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
         }
 
         .control-group label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 0.85rem;
         }
 
         .control-group select,
-        .control-group input {
+        .control-group input[type="text"],
+        .control-group input[type="number"] {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 6px;
+            font-size: 13px;
             background: white;
+        }
+
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-group input[type="range"] {
+            flex: 1;
+        }
+
+        .range-value {
+            min-width: 35px;
+            font-weight: 600;
+            color: #4facfe;
+            font-size: 0.85rem;
         }
 
         .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 20px;
             padding: 15px;
             background: white;
@@ -125,15 +166,15 @@
         }
 
         .stat-number {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #4facfe;
         }
 
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #666;
-            margin-top: 5px;
+            margin-top: 3px;
         }
 
         .generate-btn {
@@ -161,22 +202,49 @@
             transform: none;
         }
 
-        .debug-info {
+        .status-info {
             background: #e8f4fd;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            font-size: 12px;
+            font-size: 11px;
         }
 
-        .debug-info h4 {
+        .status-info h4 {
             color: #0066cc;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
         }
 
-        #debugOutput {
+        #statusOutput {
             color: #0066cc;
             font-family: monospace;
+            font-size: 11px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: auto;
+        }
+
+        .checkbox-option label {
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+
+        .preview-settings {
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #2c5282;
+            margin-top: 10px;
         }
 
         @media (max-width: 768px) {
@@ -189,7 +257,12 @@
             }
             
             #textInput {
-                height: 300px;
+                height: 350px;
+            }
+            
+            .controls-panel {
+                border-left: none;
+                border-top: 1px solid #e1e5e9;
             }
         }
     </style>
@@ -198,21 +271,22 @@
     <div class="container">
         <div class="header">
             <h1>📄 TextToPDF Pro</h1>
-            <p>Transform text into PDF documents instantly</p>
+            <p>Advanced text to PDF converter with full formatting control</p>
         </div>
         
         <div class="main-content">
             <div class="text-area-section">
-                <div class="text-area-label">📝 Paste your text content here</div>
-                <textarea id="textInput" placeholder="Paste your text here and click Generate PDF to create a downloadable PDF document...
+                <div class="text-area-label">📝 Enter your text content</div>
+                <textarea id="textInput" placeholder="Paste or type your text here...
 
-Try pasting some content like:
-- Essays or reports  
-- Meeting notes
-- Articles or blog posts
-- Any text you want to convert to PDF
+Example content:
+• Reports and documents
+• Meeting notes and summaries
+• Articles and blog posts
+• Academic papers
+• Any text content
 
-This tool works completely in your browser - no uploads needed!"></textarea>
+This advanced converter gives you complete control over formatting, spacing, margins, and alignment for professional PDF output."></textarea>
             </div>
             
             <div class="controls-panel">
@@ -227,135 +301,149 @@ This tool works completely in your browser - no uploads needed!"></textarea>
                     </div>
                 </div>
 
-                <div class="debug-info">
+                <div class="status-info">
                     <h4>🔧 System Status</h4>
-                    <div id="debugOutput">Checking PDF library...</div>
+                    <div id="statusOutput">Initializing PDF engine...</div>
                 </div>
 
-                <div class="control-group">
-                    <label>📖 Document Title (Optional)</label>
-                    <input type="text" id="docTitle" placeholder="Enter document title">
+                <div class="control-section">
+                    <h3>📖 Document Info</h3>
+                    <div class="control-group">
+                        <label>Document Title</label>
+                        <input type="text" id="docTitle" placeholder="Optional document title">
+                    </div>
+                    <div class="control-group">
+                        <label>Author Name</label>
+                        <input type="text" id="authorName" placeholder="Optional author name">
+                    </div>
                 </div>
 
-                <div class="control-group">
-                    <label>📏 Font Size</label>
-                    <select id="fontSize">
-                        <option value="10">10pt</option>
-                        <option value="12" selected>12pt</option>
-                        <option value="14">14pt</option>
-                        <option value="16">16pt</option>
-                    </select>
+                <div class="control-section">
+                    <h3>🎨 Typography</h3>
+                    <div class="control-group">
+                        <label>Font Family</label>
+                        <select id="fontFamily">
+                            <option value="helvetica">Helvetica (Sans-serif)</option>
+                            <option value="times" selected>Times (Serif)</option>
+                            <option value="courier">Courier (Monospace)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Font Size: <span class="range-value" id="fontSizeValue">12pt</span></label>
+                        <input type="range" id="fontSize" min="8" max="24" value="12" step="1">
+                    </div>
+                    <div class="control-group">
+                        <label>Text Alignment</label>
+                        <select id="textAlignment">
+                            <option value="left" selected>Left Aligned</option>
+                            <option value="center">Center Aligned</option>
+                            <option value="right">Right Aligned</option>
+                            <option value="justify">Justified</option>
+                        </select>
+                    </div>
                 </div>
 
-                <button class="generate-btn" onclick="testAndGenerate()" id="generateBtn">
-                    🚀 Generate PDF Document
+                <div class="control-section">
+                    <h3>📏 Spacing Controls</h3>
+                    <div class="control-group">
+                        <label>Line Spacing: <span class="range-value" id="lineSpacingValue">1.0x</span></label>
+                        <input type="range" id="lineSpacing" min="0.8" max="3.0" value="1.0" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label>Paragraph Spacing: <span class="range-value" id="paragraphSpacingValue">1.0x</span></label>
+                        <input type="range" id="paragraphSpacing" min="0" max="3.0" value="1.0" step="0.1">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📐 Page Layout</h3>
+                    <div class="control-group">
+                        <label>Page Size</label>
+                        <select id="pageSize">
+                            <option value="a4" selected>A4 (210 × 297 mm)</option>
+                            <option value="letter">Letter (8.5 × 11 in)</option>
+                            <option value="legal">Legal (8.5 × 14 in)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Top Margin: <span class="range-value" id="topMarginValue">20mm</span></label>
+                        <input type="range" id="topMargin" min="10" max="50" value="20" step="1">
+                    </div>
+                    <div class="control-group">
+                        <label>Side Margins: <span class="range-value" id="sideMarginValue">20mm</span></label>
+                        <input type="range" id="sideMargin" min="10" max="50" value="20" step="1">
+                    </div>
+                    <div class="control-group">
+                        <label>Bottom Margin: <span class="range-value" id="bottomMarginValue">20mm</span></label>
+                        <input type="range" id="bottomMargin" min="10" max="50" value="20" step="1">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>⚙️ Options</h3>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="addPageNumbers" checked>
+                        <label for="addPageNumbers">Add page numbers</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="preserveLineBreaks" checked>
+                        <label for="preserveLineBreaks">Preserve line breaks</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="addDateStamp">
+                        <label for="addDateStamp">Add date stamp</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="enableHyphenation">
+                        <label for="enableHyphenation">Enable hyphenation</label>
+                    </div>
+                </div>
+
+                <div class="preview-settings" id="previewSettings">
+                    Current settings will generate a PDF with 12pt Times font, 1.0x line spacing, 20mm margins, left-aligned text.
+                </div>
+
+                <button class="generate-btn" onclick="generatePDF()" id="generateBtn">
+                    🚀 Generate Professional PDF
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Load jsPDF with fallback CDNs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
-            onerror="loadFallbackJsPDF()"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
+        // DOM Elements
         const textInput = document.getElementById('textInput');
         const wordCount = document.getElementById('wordCount');
         const charCount = document.getElementById('charCount');
-        const debugOutput = document.getElementById('debugOutput');
+        const statusOutput = document.getElementById('statusOutput');
+        const previewSettings = document.getElementById('previewSettings');
+        
+        // Range input elements and their displays
+        const rangeInputs = {
+            fontSize: { input: document.getElementById('fontSize'), display: document.getElementById('fontSizeValue'), suffix: 'pt' },
+            lineSpacing: { input: document.getElementById('lineSpacing'), display: document.getElementById('lineSpacingValue'), suffix: 'x' },
+            paragraphSpacing: { input: document.getElementById('paragraphSpacing'), display: document.getElementById('paragraphSpacingValue'), suffix: 'x' },
+            topMargin: { input: document.getElementById('topMargin'), display: document.getElementById('topMarginValue'), suffix: 'mm' },
+            sideMargin: { input: document.getElementById('sideMargin'), display: document.getElementById('sideMarginValue'), suffix: 'mm' },
+            bottomMargin: { input: document.getElementById('bottomMargin'), display: document.getElementById('bottomMarginValue'), suffix: 'mm' }
+        };
 
-        // Fallback loader for jsPDF
-        function loadFallbackJsPDF() {
-            debugOutput.innerHTML = '🔄 Loading PDF library from backup source...';
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
-            script.onload = () => {
-                setTimeout(checkLibraries, 500);
-            };
-            script.onerror = () => {
-                debugOutput.innerHTML = '❌ Failed to load PDF library from all sources';
-                showManualPDFOption();
-            };
-            document.head.appendChild(script);
-        }
+        // Initialize range input displays and event listeners
+        Object.keys(rangeInputs).forEach(key => {
+            const range = rangeInputs[key];
+            range.input.addEventListener('input', () => {
+                range.display.textContent = range.input.value + range.suffix;
+                updatePreviewSettings();
+            });
+            // Set initial value
+            range.display.textContent = range.input.value + range.suffix;
+        });
 
-        // Show manual PDF creation option if library fails
-        function showManualPDFOption() {
-            const generateBtn = document.getElementById('generateBtn');
-            generateBtn.textContent = '📄 Create Manual PDF';
-            generateBtn.onclick = createManualPDF;
-            generateBtn.disabled = false;
-        }
-
-        // Manual PDF creation using browser print
-        function createManualPDF() {
-            const text = textInput.value.trim();
-            if (!text) {
-                alert('Please enter some text first!');
-                return;
-            }
-
-            const docTitle = document.getElementById('docTitle').value.trim();
-            const fontSize = document.getElementById('fontSize').value;
-
-            // Create a new window with formatted content
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>${docTitle || 'Document'}</title>
-                    <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            font-size: ${fontSize}pt;
-                            line-height: 1.6;
-                            margin: 1in;
-                            max-width: 8.5in;
-                        }
-                        h1 {
-                            text-align: center;
-                            margin-bottom: 2em;
-                            font-size: ${parseInt(fontSize) + 4}pt;
-                        }
-                        .content {
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
-                        }
-                        @media print {
-                            body { margin: 0.5in; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${docTitle ? `<h1>${docTitle}</h1>` : ''}
-                    <div class="content">${text}</div>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-
-            // Auto-trigger print dialog
-            setTimeout(() => {
-                printWindow.focus();
-                printWindow.print();
-            }, 1000);
-
-            alert('A new window opened with your formatted document. Use Ctrl+P (or Cmd+P on Mac) to save as PDF!');
-        }
-
-        // Test if libraries are loaded
-        function checkLibraries() {
-            if (typeof window.jspdf !== 'undefined') {
-                debugOutput.innerHTML = '✅ PDF library loaded successfully';
-                debugOutput.style.color = 'green';
-                return true;
-            } else {
-                debugOutput.innerHTML = '❌ PDF library not loaded - will use manual method';
-                debugOutput.style.color = 'orange';
-                showManualPDFOption();
-                return false;
-            }
-        }
+        // Add event listeners for other controls
+        document.getElementById('fontFamily').addEventListener('change', updatePreviewSettings);
+        document.getElementById('textAlignment').addEventListener('change', updatePreviewSettings);
+        document.getElementById('pageSize').addEventListener('change', updatePreviewSettings);
 
         // Update stats in real-time
         textInput.addEventListener('input', updateStats);
@@ -371,125 +459,273 @@ This tool works completely in your browser - no uploads needed!"></textarea>
             document.getElementById('generateBtn').disabled = text.trim().length === 0;
         }
 
-        function testAndGenerate() {
-            const generateBtn = document.getElementById('generateBtn');
-            debugOutput.innerHTML = '🔄 Testing PDF generation...';
+        function updatePreviewSettings() {
+            const fontSize = document.getElementById('fontSize').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+            const lineSpacing = document.getElementById('lineSpacing').value;
+            const alignment = document.getElementById('textAlignment').value;
+            const margins = document.getElementById('sideMargin').value;
             
-            // First, test if we can create a simple PDF
-            try {
-                if (typeof window.jspdf === 'undefined') {
-                    throw new Error('jsPDF library not loaded');
-                }
+            previewSettings.textContent = `Current settings: ${fontSize}pt ${fontFamily.charAt(0).toUpperCase() + fontFamily.slice(1)} font, ${lineSpacing}x line spacing, ${margins}mm margins, ${alignment}-aligned text.`;
+        }
 
-                const { jsPDF } = window.jspdf;
-                const testDoc = new jsPDF();
-                
-                debugOutput.innerHTML = '✅ PDF library working, generating document...';
-                generatePDF();
-                
-            } catch (error) {
-                debugOutput.innerHTML = `❌ Error: ${error.message}`;
-                alert(`PDF generation failed: ${error.message}\n\nPlease refresh the page and try again.`);
+        // Convert mm to PDF points (1mm = 2.834645669 points)
+        function mmToPt(mm) {
+            return mm * 2.834645669;
+        }
+
+        // Text preprocessing
+        function preprocessText(text, preserveLineBreaks = true) {
+            // Normalize line endings
+            text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            
+            // Handle line breaks based on user preference
+            if (preserveLineBreaks) {
+                // Keep single line breaks, convert double+ line breaks to paragraph breaks
+                text = text.replace(/\n{3,}/g, '\n\n'); // Limit multiple breaks to double
+            } else {
+                // Convert single line breaks to spaces, keep paragraph breaks
+                text = text.replace(/([^\n])\n([^\n])/g, '$1 $2');
+            }
+            
+            // Replace tabs with spaces
+            text = text.replace(/\t/g, '    ');
+            
+            // Clean up extra spaces while preserving intentional formatting
+            text = text.replace(/ +/g, ' ');
+            
+            // Remove trailing spaces from lines
+            text = text.replace(/ +$/gm, '');
+            
+            return text.trim();
+        }
+
+        // Split text into paragraphs
+        function splitIntoParagraphs(text) {
+            return text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+        }
+
+        // Add justified text
+        function addJustifiedText(doc, text, x, y, maxWidth, fontSize) {
+            const words = text.trim().split(/\s+/);
+            if (words.length <= 1) {
+                doc.text(text, x, y);
+                return;
+            }
+            
+            // Calculate spacing
+            const totalTextWidth = words.reduce((sum, word) => sum + doc.getTextWidth(word), 0);
+            const totalSpaceWidth = maxWidth - totalTextWidth;
+            const spaceWidth = totalSpaceWidth / (words.length - 1);
+            
+            // Don't justify if spacing would be too wide
+            if (spaceWidth > fontSize * 0.5) {
+                doc.text(text, x, y);
+                return;
+            }
+            
+            let currentX = x;
+            for (let i = 0; i < words.length; i++) {
+                doc.text(words[i], currentX, y);
+                if (i < words.length - 1) {
+                    currentX += doc.getTextWidth(words[i]) + spaceWidth;
+                }
             }
         }
 
+        // Main PDF generation function
         function generatePDF() {
             const text = textInput.value.trim();
-            
             if (!text) {
                 alert('Please enter some text before generating PDF!');
                 return;
             }
 
             const generateBtn = document.getElementById('generateBtn');
-            generateBtn.textContent = '🔄 Generating PDF...';
+            generateBtn.textContent = '⏳ Generating PDF...';
             generateBtn.disabled = true;
+            statusOutput.textContent = '📊 Processing text and creating PDF...';
 
             try {
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+                
+                // Get all settings
+                const settings = {
+                    fontSize: parseInt(document.getElementById('fontSize').value),
+                    fontFamily: document.getElementById('fontFamily').value,
+                    lineSpacing: parseFloat(document.getElementById('lineSpacing').value),
+                    paragraphSpacing: parseFloat(document.getElementById('paragraphSpacing').value),
+                    textAlignment: document.getElementById('textAlignment').value,
+                    pageSize: document.getElementById('pageSize').value,
+                    topMargin: mmToPt(parseInt(document.getElementById('topMargin').value)),
+                    sideMargin: mmToPt(parseInt(document.getElementById('sideMargin').value)),
+                    bottomMargin: mmToPt(parseInt(document.getElementById('bottomMargin').value)),
+                    docTitle: document.getElementById('docTitle').value.trim(),
+                    authorName: document.getElementById('authorName').value.trim(),
+                    addPageNumbers: document.getElementById('addPageNumbers').checked,
+                    preserveLineBreaks: document.getElementById('preserveLineBreaks').checked,
+                    addDateStamp: document.getElementById('addDateStamp').checked,
+                    enableHyphenation: document.getElementById('enableHyphenation').checked
+                };
 
-                // Get settings
-                const fontSize = parseInt(document.getElementById('fontSize').value);
-                const docTitle = document.getElementById('docTitle').value.trim();
+                // Create PDF with specified page size
+                const doc = settings.pageSize === 'letter' ? new jsPDF('p', 'pt', 'letter') :
+                            settings.pageSize === 'legal' ? new jsPDF('p', 'pt', 'legal') :
+                            new jsPDF('p', 'pt', 'a4');
 
-                // Set font and size
-                doc.setFont('helvetica');
-                doc.setFontSize(fontSize);
+               doc.setProperties({
+  title: settings.docTitle || 'Untitled Document',
+  subject: settings.docSubject || 'Generated with TextToPDF Pro',
+  author: settings.authorName || 'Anonymous',
+  keywords: settings.docKeywords || 'pdf, text, converter, TextToPDF Pro',
+  creator: 'TextToPDF Pro'
+});
 
-                // Page settings
+                // Set font
+                doc.setFont(settings.fontFamily);
+                doc.setFontSize(settings.fontSize);
+
+                // Page dimensions
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
-                const margin = 40;
-                const maxWidth = pageWidth - (margin * 2);
-                const lineHeight = fontSize * 1.2;
-
-                let yPosition = margin;
+                const maxWidth = pageWidth - (settings.sideMargin * 2);
+                const lineHeight = settings.fontSize * settings.lineSpacing;
+                
+                let yPosition = settings.topMargin;
 
                 // Add title if provided
-                if (docTitle) {
-                    doc.setFontSize(fontSize + 4);
-                    doc.text(docTitle, pageWidth / 2, yPosition, { align: 'center' });
-                    yPosition += lineHeight * 2;
-                    doc.setFontSize(fontSize);
+                if (settings.docTitle) {
+                    doc.setFontSize(settings.fontSize + 6);
+                    doc.setFont(settings.fontFamily, 'bold');
+                    
+                    const titleLines = doc.splitTextToSize(settings.docTitle, maxWidth);
+                    titleLines.forEach(line => {
+                        const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
+                                    settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                                    settings.sideMargin;
+                        
+                        doc.text(line, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
+                        yPosition += lineHeight * 1.2;
+                    });
+                    
+                    yPosition += lineHeight * settings.paragraphSpacing;
+                    doc.setFont(settings.fontFamily, 'normal');
+                    doc.setFontSize(settings.fontSize);
                 }
 
-                // Split text into lines
-                const lines = doc.splitTextToSize(text, maxWidth);
-                
-                // Add lines to PDF
-                for (let i = 0; i < lines.length; i++) {
-                    // Check if we need a new page
-                    if (yPosition + lineHeight > pageHeight - margin) {
-                        doc.addPage();
-                        yPosition = margin;
+                // Add author and date if specified
+                if (settings.authorName || settings.addDateStamp) {
+                    doc.setFontSize(settings.fontSize - 2);
+                    let metaText = '';
+                    if (settings.authorName) metaText += `By: ${settings.authorName}`;
+                    if (settings.addDateStamp) {
+                        if (metaText) metaText += ' | ';
+                        metaText += `Date: ${new Date().toLocaleDateString()}`;
                     }
                     
-                    doc.text(lines[i], margin, yPosition);
-                    yPosition += lineHeight;
+                    const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
+                                settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                                settings.sideMargin;
+                    
+                    doc.text(metaText, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
+                    yPosition += lineHeight * (settings.paragraphSpacing + 1);
+                    doc.setFontSize(settings.fontSize);
+                }
+
+                // Process text
+                const processedText = preprocessText(text, settings.preserveLineBreaks);
+                const paragraphs = splitIntoParagraphs(processedText);
+
+                // Add paragraphs
+                paragraphs.forEach((paragraph, index) => {
+                    const lines = doc.splitTextToSize(paragraph, maxWidth);
+                    
+                    lines.forEach((line, lineIndex) => {
+                        // Check for page break
+                        if (yPosition + lineHeight > pageHeight - settings.bottomMargin) {
+                            doc.addPage();
+                            yPosition = settings.topMargin;
+                        }
+
+                        const trimmedLine = line.trim();
+                        if (trimmedLine) {
+                            let xPos = settings.sideMargin;
+                            
+                            if (settings.textAlignment === 'center') {
+                                xPos = pageWidth / 2;
+                                doc.text(trimmedLine, xPos, yPosition, { align: 'center' });
+                            } else if (settings.textAlignment === 'right') {
+                                xPos = pageWidth - settings.sideMargin;
+                                doc.text(trimmedLine, xPos, yPosition, { align: 'right' });
+                            } else if (settings.textAlignment === 'justify' && lineIndex < lines.length - 1) {
+                                addJustifiedText(doc, trimmedLine, xPos, yPosition, maxWidth, settings.fontSize);
+                            } else {
+                                doc.text(trimmedLine, xPos, yPosition);
+                            }
+                        }
+                        
+                        yPosition += lineHeight;
+                    });
+                    
+                    // Add paragraph spacing
+                    if (index < paragraphs.length - 1) {
+                        yPosition += lineHeight * settings.paragraphSpacing;
+                    }
+                });
+
+                // Add page numbers
+                if (settings.addPageNumbers) {
+                    const pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(10);
+                    
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        doc.text(`Page ${i} of ${pageCount}`, 
+                                pageWidth / 2, 
+                                pageHeight - 20, 
+                                { align: 'center' });
+                    }
                 }
 
                 // Generate filename
                 const timestamp = new Date().toISOString().slice(0, 10);
-                const filename = docTitle ? 
-                    `${docTitle.replace(/[^a-zA-Z0-9]/g, '_')}.pdf` : 
+                const filename = settings.docTitle ? 
+                    `${settings.docTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_')}.pdf` : 
                     `document_${timestamp}.pdf`;
 
                 // Save PDF
                 doc.save(filename);
 
                 // Success feedback
-                debugOutput.innerHTML = '✅ PDF generated successfully!';
-                generateBtn.textContent = '✅ PDF Generated!';
+                statusOutput.innerHTML = '✅ PDF generated successfully!';
+                generateBtn.textContent = '✅ PDF Created!';
                 generateBtn.style.background = 'linear-gradient(135deg, #00b894, #00a085)';
                 
                 setTimeout(() => {
-                    generateBtn.textContent = '🚀 Generate PDF Document';
+                    generateBtn.textContent = '🚀 Generate Professional PDF';
                     generateBtn.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
                     generateBtn.disabled = false;
                 }, 3000);
 
             } catch (error) {
                 console.error('PDF generation error:', error);
-                debugOutput.innerHTML = `❌ Error: ${error.message}`;
+                statusOutput.innerHTML = `❌ Error: ${error.message}`;
                 alert(`Error generating PDF: ${error.message}`);
-                generateBtn.textContent = '🚀 Generate PDF Document';
+                generateBtn.textContent = '🚀 Generate Professional PDF';
                 generateBtn.disabled = false;
             }
         }
 
-        // Check library status on load
+        // Initialize
         setTimeout(() => {
-            checkLibraries();
-            updateStats();
-        }, 1000);
-
-        // Recheck every few seconds until loaded
-        const checkInterval = setInterval(() => {
-            if (checkLibraries()) {
-                clearInterval(checkInterval);
+            if (typeof window.jspdf !== 'undefined') {
+                statusOutput.innerHTML = '✅ PDF engine ready';
+            } else {
+                statusOutput.innerHTML = '❌ PDF engine failed to load';
             }
-        }, 2000);
+            updateStats();
+            updatePreviewSettings();
+        }, 1000);
     </script>
 </body>
 </html>
