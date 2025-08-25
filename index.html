@@ -309,12 +309,31 @@ This advanced converter gives you complete control over formatting, spacing, mar
                 <div class="control-section">
                     <h3>📖 Document Info</h3>
                     <div class="control-group">
+                        <label>Document Type</label>
+                        <select id="documentType">
+                            <option value="general">General Document</option>
+                            <option value="report">Business Report</option>
+                            <option value="assignment">Academic Assignment</option>
+                            <option value="resume">Resume/CV</option>
+                            <option value="letter">Formal Letter</option>
+                            <option value="essay">Essay/Article</option>
+                            <option value="memo">Memo/Notice</option>
+                            <option value="proposal">Project Proposal</option>
+                            <option value="manual">User Manual</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
                         <label>Document Title</label>
                         <input type="text" id="docTitle" placeholder="Optional document title">
                     </div>
                     <div class="control-group">
                         <label>Author Name</label>
                         <input type="text" id="authorName" placeholder="Optional author name">
+                    </div>
+                    <div class="control-group">
+                        <label>Subject/Topic</label>
+                        <input type="text" id="docSubject" placeholder="Optional subject or topic">
                     </div>
                 </div>
 
@@ -324,8 +343,15 @@ This advanced converter gives you complete control over formatting, spacing, mar
                         <label>Font Family</label>
                         <select id="fontFamily">
                             <option value="helvetica">Helvetica (Sans-serif)</option>
-                            <option value="times" selected>Times (Serif)</option>
-                            <option value="courier">Courier (Monospace)</option>
+                            <option value="times" selected>Times New Roman (Serif)</option>
+                            <option value="courier">Courier New (Monospace)</option>
+                            <option value="arial">Arial (Sans-serif)</option>
+                            <option value="calibri">Calibri (Sans-serif)</option>
+                            <option value="georgia">Georgia (Serif)</option>
+                            <option value="verdana">Verdana (Sans-serif)</option>
+                            <option value="palatino">Palatino (Serif)</option>
+                            <option value="tahoma">Tahoma (Sans-serif)</option>
+                            <option value="trebuchet">Trebuchet MS (Sans-serif)</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -444,6 +470,7 @@ This advanced converter gives you complete control over formatting, spacing, mar
         document.getElementById('fontFamily').addEventListener('change', updatePreviewSettings);
         document.getElementById('textAlignment').addEventListener('change', updatePreviewSettings);
         document.getElementById('pageSize').addEventListener('change', updatePreviewSettings);
+        document.getElementById('documentType').addEventListener('change', applyDocumentTypeSettings);
 
         // Update stats in real-time
         textInput.addEventListener('input', updateStats);
@@ -465,8 +492,83 @@ This advanced converter gives you complete control over formatting, spacing, mar
             const lineSpacing = document.getElementById('lineSpacing').value;
             const alignment = document.getElementById('textAlignment').value;
             const margins = document.getElementById('sideMargin').value;
+            const docType = document.getElementById('documentType').value;
             
-            previewSettings.textContent = `Current settings: ${fontSize}pt ${fontFamily.charAt(0).toUpperCase() + fontFamily.slice(1)} font, ${lineSpacing}x line spacing, ${margins}mm margins, ${alignment}-aligned text.`;
+            previewSettings.textContent = `Current settings: ${fontSize}pt ${fontFamily.charAt(0).toUpperCase() + fontFamily.slice(1)} font, ${lineSpacing}x line spacing, ${margins}mm margins, ${alignment}-aligned ${docType} document.`;
+        }
+
+        // Apply document type specific settings
+        function applyDocumentTypeSettings() {
+            const docType = document.getElementById('documentType').value;
+            
+            // Apply predefined settings based on document type
+            switch(docType) {
+                case 'report':
+                    document.getElementById('fontSize').value = 12;
+                    document.getElementById('fontFamily').value = 'times';
+                    document.getElementById('lineSpacing').value = 1.2;
+                    document.getElementById('textAlignment').value = 'justify';
+                    document.getElementById('addPageNumbers').checked = true;
+                    break;
+                case 'assignment':
+                    document.getElementById('fontSize').value = 12;
+                    document.getElementById('fontFamily').value = 'times';
+                    document.getElementById('lineSpacing').value = 2.0;
+                    document.getElementById('textAlignment').value = 'left';
+                    document.getElementById('topMargin').value = 25;
+                    document.getElementById('addPageNumbers').checked = true;
+                    break;
+                case 'resume':
+                    document.getElementById('fontSize').value = 11;
+                    document.getElementById('fontFamily').value = 'calibri';
+                    document.getElementById('lineSpacing').value = 1.0;
+                    document.getElementById('textAlignment').value = 'left';
+                    document.getElementById('addPageNumbers').checked = false;
+                    break;
+                case 'letter':
+                    document.getElementById('fontSize').value = 12;
+                    document.getElementById('fontFamily').value = 'times';
+                    document.getElementById('lineSpacing').value = 1.15;
+                    document.getElementById('textAlignment').value = 'left';
+                    document.getElementById('addPageNumbers').checked = false;
+                    break;
+                case 'essay':
+                    document.getElementById('fontSize').value = 12;
+                    document.getElementById('fontFamily').value = 'times';
+                    document.getElementById('lineSpacing').value = 1.5;
+                    document.getElementById('textAlignment').value = 'justify';
+                    document.getElementById('addPageNumbers').checked = true;
+                    break;
+                case 'memo':
+                    document.getElementById('fontSize').value = 11;
+                    document.getElementById('fontFamily').value = 'arial';
+                    document.getElementById('lineSpacing').value = 1.0;
+                    document.getElementById('textAlignment').value = 'left';
+                    document.getElementById('addPageNumbers').checked = false;
+                    break;
+                case 'proposal':
+                    document.getElementById('fontSize').value = 12;
+                    document.getElementById('fontFamily').value = 'calibri';
+                    document.getElementById('lineSpacing').value = 1.15;
+                    document.getElementById('textAlignment').value = 'justify';
+                    document.getElementById('addPageNumbers').checked = true;
+                    break;
+                case 'manual':
+                    document.getElementById('fontSize').value = 11;
+                    document.getElementById('fontFamily').value = 'arial';
+                    document.getElementById('lineSpacing').value = 1.1;
+                    document.getElementById('textAlignment').value = 'left';
+                    document.getElementById('addPageNumbers').checked = true;
+                    break;
+            }
+            
+            // Update all range displays
+            Object.keys(rangeInputs).forEach(key => {
+                const range = rangeInputs[key];
+                range.display.textContent = range.input.value + range.suffix;
+            });
+            
+            updatePreviewSettings();
         }
 
         // Convert mm to PDF points (1mm = 2.834645669 points)
@@ -549,10 +651,28 @@ This advanced converter gives you complete control over formatting, spacing, mar
             try {
                 const { jsPDF } = window.jspdf;
                 
+                // Get font mapping for jsPDF compatibility
+                function getFontMapping(fontName) {
+                    const fontMap = {
+                        'helvetica': 'helvetica',
+                        'times': 'times',
+                        'courier': 'courier',
+                        'arial': 'helvetica', // Fallback to helvetica
+                        'calibri': 'helvetica', // Fallback to helvetica
+                        'georgia': 'times', // Fallback to times
+                        'verdana': 'helvetica', // Fallback to helvetica
+                        'palatino': 'times', // Fallback to times
+                        'tahoma': 'helvetica', // Fallback to helvetica
+                        'trebuchet': 'helvetica' // Fallback to helvetica
+                    };
+                    return fontMap[fontName] || 'helvetica';
+                }
+
                 // Get all settings
                 const settings = {
                     fontSize: parseInt(document.getElementById('fontSize').value),
                     fontFamily: document.getElementById('fontFamily').value,
+                    fontFamilyMapped: getFontMapping(document.getElementById('fontFamily').value),
                     lineSpacing: parseFloat(document.getElementById('lineSpacing').value),
                     paragraphSpacing: parseFloat(document.getElementById('paragraphSpacing').value),
                     textAlignment: document.getElementById('textAlignment').value,
@@ -562,6 +682,8 @@ This advanced converter gives you complete control over formatting, spacing, mar
                     bottomMargin: mmToPt(parseInt(document.getElementById('bottomMargin').value)),
                     docTitle: document.getElementById('docTitle').value.trim(),
                     authorName: document.getElementById('authorName').value.trim(),
+                    docSubject: document.getElementById('docSubject').value.trim(),
+                    documentType: document.getElementById('documentType').value,
                     addPageNumbers: document.getElementById('addPageNumbers').checked,
                     preserveLineBreaks: document.getElementById('preserveLineBreaks').checked,
                     addDateStamp: document.getElementById('addDateStamp').checked,
@@ -573,13 +695,12 @@ This advanced converter gives you complete control over formatting, spacing, mar
                             settings.pageSize === 'legal' ? new jsPDF('p', 'pt', 'legal') :
                             new jsPDF('p', 'pt', 'a4');
 
-               doc.setProperties({
-  title: settings.docTitle || 'Untitled Document',
-  subject: settings.docSubject || 'Generated with TextToPDF Pro',
-  author: settings.authorName || 'Anonymous',
-  keywords: settings.docKeywords || 'pdf, text, converter, TextToPDF Pro',
-  creator: 'TextToPDF Pro'
-});
+                // Set document properties (using setProperties for compatibility)
+                const properties = {};
+                if (settings.docTitle) properties.title = settings.docTitle;
+                if (settings.authorName) properties.author = settings.authorName;
+                properties.creator = 'TextToPDF Pro';
+                doc.setProperties(properties);
 
                 // Set font
                 doc.setFont(settings.fontFamily);
