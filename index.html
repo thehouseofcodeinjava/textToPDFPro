@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -53,6 +53,8 @@
 
         .text-area-section {
             padding: 30px;
+            display: flex;
+            flex-direction: column;
         }
 
         .text-area-label {
@@ -88,6 +90,58 @@
             overflow-y: auto;
         }
 
+        .preview-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            margin-top: 30px;
+        }
+
+        .preview-panel.hidden {
+            display: none;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .preview-status {
+            font-size: 0.75rem;
+            color: #666;
+            background: #e8f4fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        #previewFrame {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .preview-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+        }
+
         .control-section {
             margin-bottom: 25px;
             padding: 15px;
@@ -101,9 +155,6 @@
             font-weight: 600;
             color: #333;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .control-group {
@@ -247,6 +298,12 @@
             margin-top: 10px;
         }
 
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -264,19 +321,23 @@
                 border-left: none;
                 border-top: 1px solid #e1e5e9;
             }
+
+            .preview-panel {
+                border-top: 1px solid #e1e5e9;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📄 TextToPDF Pro</h1>
-            <p>Advanced text to PDF converter with full formatting control</p>
+            <h1>TextToPDF Pro</h1>
+            <p>Advanced text to PDF converter with live preview and auto-formatting</p>
         </div>
         
         <div class="main-content">
             <div class="text-area-section">
-                <div class="text-area-label">📝 Enter your text content</div>
+                <div class="text-area-label">Enter your text content</div>
                 <textarea id="textInput" placeholder="Paste or type your text here...
 
 Example content:
@@ -286,7 +347,19 @@ Example content:
 • Academic papers
 • Any text content
 
-This advanced converter gives you complete control over formatting, spacing, margins, and alignment for professional PDF output."></textarea>
+This converter automatically formats your text and provides live preview."></textarea>
+                <div class="preview-panel" id="previewPanel">
+                    <div class="preview-header">
+                        <div class="preview-title">Live Preview</div>
+                        <div class="preview-status" id="previewStatus">Ready</div>
+                    </div>
+                    <div class="preview-loading" id="previewLoading">
+                        Enter text to see preview...
+                    </div>
+                    <object id="previewFrame" type="application/pdf" style="display: none;">
+                        <p>PDF preview not supported in this browser.</p>
+                    </object>
+                </div>
             </div>
             
             <div class="controls-panel">
@@ -302,12 +375,12 @@ This advanced converter gives you complete control over formatting, spacing, mar
                 </div>
 
                 <div class="status-info">
-                    <h4>🔧 System Status</h4>
+                    <h4>System Status</h4>
                     <div id="statusOutput">Initializing PDF engine...</div>
                 </div>
 
                 <div class="control-section">
-                    <h3>📖 Document Info</h3>
+                    <h3>Document Info</h3>
                     <div class="control-group">
                         <label>Document Type</label>
                         <select id="documentType">
@@ -318,9 +391,6 @@ This advanced converter gives you complete control over formatting, spacing, mar
                             <option value="letter">Formal Letter</option>
                             <option value="essay">Essay/Article</option>
                             <option value="memo">Memo/Notice</option>
-                            <option value="proposal">Project Proposal</option>
-                            <option value="manual">User Manual</option>
-                            <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -331,27 +401,28 @@ This advanced converter gives you complete control over formatting, spacing, mar
                         <label>Author Name</label>
                         <input type="text" id="authorName" placeholder="Optional author name">
                     </div>
-                    <div class="control-group">
-                        <label>Subject/Topic</label>
-                        <input type="text" id="docSubject" placeholder="Optional subject or topic">
-                    </div>
                 </div>
 
                 <div class="control-section">
-                    <h3>🎨 Typography</h3>
+                    <h3>Typography</h3>
                     <div class="control-group">
                         <label>Font Family</label>
                         <select id="fontFamily">
-                            <option value="helvetica">Helvetica (Sans-serif)</option>
-                            <option value="times" selected>Times New Roman (Serif)</option>
-                            <option value="courier">Courier New (Monospace)</option>
-                            <option value="arial">Arial (Sans-serif)</option>
-                            <option value="calibri">Calibri (Sans-serif)</option>
-                            <option value="georgia">Georgia (Serif)</option>
-                            <option value="verdana">Verdana (Sans-serif)</option>
-                            <option value="palatino">Palatino (Serif)</option>
-                            <option value="tahoma">Tahoma (Sans-serif)</option>
-                            <option value="trebuchet">Trebuchet MS (Sans-serif)</option>
+                            <option value="helvetica">Helvetica</option>
+                            <option value="times" selected>Times New Roman</option>
+                            <option value="courier">Courier New</option>
+                            <option value="arial">Arial</option>
+                            <option value="calibri">Calibri</option>
+                            <option value="verdana">Verdana</option>
+                            <option value="georgia">Georgia</option>
+                            <option value="palatino">Palatino Linotype</option>
+                            <option value="garamond">Garamond</option>
+                            <option value="trebuchet">Trebuchet MS</option>
+                            <option value="comic">Comic Sans MS</option>
+                            <option value="impact">Impact</option>
+                            <option value="lucida">Lucida Sans</option>
+                            <option value="tahoma">Tahoma</option>
+                            <option value="consolas">Consolas (Monospace)</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -370,7 +441,7 @@ This advanced converter gives you complete control over formatting, spacing, mar
                 </div>
 
                 <div class="control-section">
-                    <h3>📏 Spacing Controls</h3>
+                    <h3>Spacing</h3>
                     <div class="control-group">
                         <label>Line Spacing: <span class="range-value" id="lineSpacingValue">1.0x</span></label>
                         <input type="range" id="lineSpacing" min="0.8" max="3.0" value="1.0" step="0.1">
@@ -382,13 +453,13 @@ This advanced converter gives you complete control over formatting, spacing, mar
                 </div>
 
                 <div class="control-section">
-                    <h3>📐 Page Layout</h3>
+                    <h3>Page Layout</h3>
                     <div class="control-group">
                         <label>Page Size</label>
                         <select id="pageSize">
-                            <option value="a4" selected>A4 (210 × 297 mm)</option>
-                            <option value="letter">Letter (8.5 × 11 in)</option>
-                            <option value="legal">Legal (8.5 × 14 in)</option>
+                            <option value="a4" selected>A4</option>
+                            <option value="letter">Letter</option>
+                            <option value="legal">Legal</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -406,7 +477,7 @@ This advanced converter gives you complete control over formatting, spacing, mar
                 </div>
 
                 <div class="control-section">
-                    <h3>⚙️ Options</h3>
+                    <h3>Options</h3>
                     <div class="checkbox-option">
                         <input type="checkbox" id="addPageNumbers" checked>
                         <label for="addPageNumbers">Add page numbers</label>
@@ -420,17 +491,21 @@ This advanced converter gives you complete control over formatting, spacing, mar
                         <label for="addDateStamp">Add date stamp</label>
                     </div>
                     <div class="checkbox-option">
-                        <input type="checkbox" id="enableHyphenation">
-                        <label for="enableHyphenation">Enable hyphenation</label>
+                        <input type="checkbox" id="includeSummary">
+                        <label for="includeSummary">Include auto summary</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="enableLivePreview" checked>
+                        <label for="enableLivePreview">Enable live preview</label>
                     </div>
                 </div>
 
                 <div class="preview-settings" id="previewSettings">
-                    Current settings will generate a PDF with 12pt Times font, 1.0x line spacing, 20mm margins, left-aligned text.
+                    Current settings will generate a PDF with 12pt Times font, left-aligned text.
                 </div>
 
-                <button class="generate-btn" onclick="generatePDF()" id="generateBtn">
-                    🚀 Generate Professional PDF
+                <button class="generate-btn" id="generateBtn">
+                    Generate Professional PDF
                 </button>
             </div>
         </div>
@@ -438,14 +513,23 @@ This advanced converter gives you complete control over formatting, spacing, mar
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // DOM Elements
+        // Global variables
+        let previewUpdateTimeout = null;
+        let currentPreviewBlob = null;
+
+        // DOM elements
         const textInput = document.getElementById('textInput');
         const wordCount = document.getElementById('wordCount');
         const charCount = document.getElementById('charCount');
         const statusOutput = document.getElementById('statusOutput');
         const previewSettings = document.getElementById('previewSettings');
-        
-        // Range input elements and their displays
+        const previewPanel = document.getElementById('previewPanel');
+        const previewFrame = document.getElementById('previewFrame');
+        const previewLoading = document.getElementById('previewLoading');
+        const previewStatus = document.getElementById('previewStatus');
+        const generateBtn = document.getElementById('generateBtn');
+
+        // Range inputs with displays
         const rangeInputs = {
             fontSize: { input: document.getElementById('fontSize'), display: document.getElementById('fontSizeValue'), suffix: 'pt' },
             lineSpacing: { input: document.getElementById('lineSpacing'), display: document.getElementById('lineSpacingValue'), suffix: 'x' },
@@ -455,152 +539,106 @@ This advanced converter gives you complete control over formatting, spacing, mar
             bottomMargin: { input: document.getElementById('bottomMargin'), display: document.getElementById('bottomMarginValue'), suffix: 'mm' }
         };
 
-        // Initialize range input displays and event listeners
-        Object.keys(rangeInputs).forEach(key => {
-            const range = rangeInputs[key];
-            range.input.addEventListener('input', () => {
-                range.display.textContent = range.input.value + range.suffix;
-                updatePreviewSettings();
-            });
-            // Set initial value
-            range.display.textContent = range.input.value + range.suffix;
-        });
-
-        // Add event listeners for other controls
-        document.getElementById('fontFamily').addEventListener('change', updatePreviewSettings);
-        document.getElementById('textAlignment').addEventListener('change', updatePreviewSettings);
-        document.getElementById('pageSize').addEventListener('change', updatePreviewSettings);
-        document.getElementById('documentType').addEventListener('change', applyDocumentTypeSettings);
-
-        // Update stats in real-time
-        textInput.addEventListener('input', updateStats);
-
-        function updateStats() {
-            const text = textInput.value;
-            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-            const chars = text.length;
-
-            wordCount.textContent = words.toLocaleString();
-            charCount.textContent = chars.toLocaleString();
-
-            document.getElementById('generateBtn').disabled = text.trim().length === 0;
-        }
-
-        function updatePreviewSettings() {
-            const fontSize = document.getElementById('fontSize').value;
-            const fontFamily = document.getElementById('fontFamily').value;
-            const lineSpacing = document.getElementById('lineSpacing').value;
-            const alignment = document.getElementById('textAlignment').value;
-            const margins = document.getElementById('sideMargin').value;
-            const docType = document.getElementById('documentType').value;
-            
-            previewSettings.textContent = `Current settings: ${fontSize}pt ${fontFamily.charAt(0).toUpperCase() + fontFamily.slice(1)} font, ${lineSpacing}x line spacing, ${margins}mm margins, ${alignment}-aligned ${docType} document.`;
-        }
-
-        // Apply document type specific settings
-        function applyDocumentTypeSettings() {
-            const docType = document.getElementById('documentType').value;
-            
-            // Apply predefined settings based on document type
-            switch(docType) {
-                case 'report':
-                    document.getElementById('fontSize').value = 12;
-                    document.getElementById('fontFamily').value = 'times';
-                    document.getElementById('lineSpacing').value = 1.2;
-                    document.getElementById('textAlignment').value = 'justify';
-                    document.getElementById('addPageNumbers').checked = true;
-                    break;
-                case 'assignment':
-                    document.getElementById('fontSize').value = 12;
-                    document.getElementById('fontFamily').value = 'times';
-                    document.getElementById('lineSpacing').value = 2.0;
-                    document.getElementById('textAlignment').value = 'left';
-                    document.getElementById('topMargin').value = 25;
-                    document.getElementById('addPageNumbers').checked = true;
-                    break;
-                case 'resume':
-                    document.getElementById('fontSize').value = 11;
-                    document.getElementById('fontFamily').value = 'calibri';
-                    document.getElementById('lineSpacing').value = 1.0;
-                    document.getElementById('textAlignment').value = 'left';
-                    document.getElementById('addPageNumbers').checked = false;
-                    break;
-                case 'letter':
-                    document.getElementById('fontSize').value = 12;
-                    document.getElementById('fontFamily').value = 'times';
-                    document.getElementById('lineSpacing').value = 1.15;
-                    document.getElementById('textAlignment').value = 'left';
-                    document.getElementById('addPageNumbers').checked = false;
-                    break;
-                case 'essay':
-                    document.getElementById('fontSize').value = 12;
-                    document.getElementById('fontFamily').value = 'times';
-                    document.getElementById('lineSpacing').value = 1.5;
-                    document.getElementById('textAlignment').value = 'justify';
-                    document.getElementById('addPageNumbers').checked = true;
-                    break;
-                case 'memo':
-                    document.getElementById('fontSize').value = 11;
-                    document.getElementById('fontFamily').value = 'arial';
-                    document.getElementById('lineSpacing').value = 1.0;
-                    document.getElementById('textAlignment').value = 'left';
-                    document.getElementById('addPageNumbers').checked = false;
-                    break;
-                case 'proposal':
-                    document.getElementById('fontSize').value = 12;
-                    document.getElementById('fontFamily').value = 'calibri';
-                    document.getElementById('lineSpacing').value = 1.15;
-                    document.getElementById('textAlignment').value = 'justify';
-                    document.getElementById('addPageNumbers').checked = true;
-                    break;
-                case 'manual':
-                    document.getElementById('fontSize').value = 11;
-                    document.getElementById('fontFamily').value = 'arial';
-                    document.getElementById('lineSpacing').value = 1.1;
-                    document.getElementById('textAlignment').value = 'left';
-                    document.getElementById('addPageNumbers').checked = true;
-                    break;
-            }
-            
-            // Update all range displays
+        // Initialize range displays
+        function initializeRanges() {
             Object.keys(rangeInputs).forEach(key => {
                 const range = rangeInputs[key];
                 range.display.textContent = range.input.value + range.suffix;
+                
+                range.input.addEventListener('input', function() {
+                    range.display.textContent = range.input.value + range.suffix;
+                    updatePreviewSettings();
+                    schedulePreviewUpdate();
+                });
             });
-            
-            updatePreviewSettings();
         }
 
-        // Convert mm to PDF points (1mm = 2.834645669 points)
+        // Auto-format text function
+        function autoFormatText(text) {
+            // Remove lines that only contain dashes or underscores
+            text = text.replace(/^\s*[-_]{2,}\s*$/gm, '');
+            
+            // Replace multiple empty lines with just double line breaks
+            text = text.replace(/\n{3,}/g, '\n\n');
+            
+            // Trim trailing spaces from each line
+            text = text.replace(/ +$/gm, '');
+            
+            // Normalize bullet points to consistent bullet character
+            text = text.replace(/^\s*[-*]\s+/gm, '• ');
+            
+            return text.trim();
+        }
+
+        // Simple summary function
+       // Simple summary function
+function simpleSummary(text, sentenceCount = 3) {
+    // Remove markdown heading markers like ### or --- before summarizing
+    let cleanText = text.replace(/#{3,}/g, '').replace(/-{3,}/g, '');
+    cleanText = cleanText.trim().replace(/\s+/g, ' ');
+
+    const sentences = cleanText.match(/[^\.!\?]+[\.!\?]+/g);
+    
+    if (!sentences || sentences.length === 0) {
+        return '';
+    }
+    
+    const summarySentences = sentences
+        .slice(0, Math.min(sentenceCount, sentences.length))
+        .map(sentence => sentence.trim())
+        .filter(sentence => sentence.length > 0);
+    
+    return summarySentences.join(' ');
+}
+// Simple summary function
+function simpleSummary(text, sentenceCount = 3) {
+    // Remove markdown heading markers like ### or --- before summarizing
+    let cleanText = text.replace(/#{3,}/g, '').replace(/-{3,}/g, '');
+    cleanText = cleanText.trim().replace(/\s+/g, ' ');
+
+    const sentences = cleanText.match(/[^\.!\?]+[\.!\?]+/g);
+    
+    if (!sentences || sentences.length === 0) {
+        return '';
+    }
+    
+    const summarySentences = sentences
+        .slice(0, Math.min(sentenceCount, sentences.length))
+        .map(sentence => sentence.trim())
+        .filter(sentence => sentence.length > 0);
+    
+    return summarySentences.join(' ');
+}
+
+
+        // Convert mm to PDF points
         function mmToPt(mm) {
             return mm * 2.834645669;
         }
 
         // Text preprocessing
-        function preprocessText(text, preserveLineBreaks = true) {
-            // Normalize line endings
-            text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-            
-            // Handle line breaks based on user preference
-            if (preserveLineBreaks) {
-                // Keep single line breaks, convert double+ line breaks to paragraph breaks
-                text = text.replace(/\n{3,}/g, '\n\n'); // Limit multiple breaks to double
-            } else {
-                // Convert single line breaks to spaces, keep paragraph breaks
-                text = text.replace(/([^\n])\n([^\n])/g, '$1 $2');
-            }
-            
-            // Replace tabs with spaces
-            text = text.replace(/\t/g, '    ');
-            
-            // Clean up extra spaces while preserving intentional formatting
-            text = text.replace(/ +/g, ' ');
-            
-            // Remove trailing spaces from lines
-            text = text.replace(/ +$/gm, '');
-            
-            return text.trim();
-        }
+function preprocessText(text, preserveLineBreaks = true) {
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    
+    // Remove any "###" or "---" sequences (anywhere in the text)
+    text = text.replace(/#{3,}/g, '');
+    text = text.replace(/-{3,}/g, '');
+
+    if (preserveLineBreaks) {
+        text = text.replace(/\n{3,}/g, '\n\n');
+    } else {
+        text = text.replace(/([^\n])\n([^\n])/g, '$1 $2');
+    }
+    
+    text = text.replace(/\t/g, '    ');
+    text = text.replace(/ +/g, ' ');
+    text = text.replace(/ +$/gm, '');
+    
+    return text.trim();
+}
+
+
+
 
         // Split text into paragraphs
         function splitIntoParagraphs(text) {
@@ -615,12 +653,10 @@ This advanced converter gives you complete control over formatting, spacing, mar
                 return;
             }
             
-            // Calculate spacing
             const totalTextWidth = words.reduce((sum, word) => sum + doc.getTextWidth(word), 0);
             const totalSpaceWidth = maxWidth - totalTextWidth;
             const spaceWidth = totalSpaceWidth / (words.length - 1);
             
-            // Don't justify if spacing would be too wide
             if (spaceWidth > fontSize * 0.5) {
                 doc.text(text, x, y);
                 return;
@@ -635,134 +671,111 @@ This advanced converter gives you complete control over formatting, spacing, mar
             }
         }
 
-        // Main PDF generation function
-        function generatePDF() {
-            const text = textInput.value.trim();
-            if (!text) {
-                alert('Please enter some text before generating PDF!');
-                return;
+        // Get current settings
+        function getCurrentSettings() {
+            return {
+                fontSize: parseInt(document.getElementById('fontSize').value),
+                fontFamily: document.getElementById('fontFamily').value,
+                lineSpacing: parseFloat(document.getElementById('lineSpacing').value),
+                paragraphSpacing: parseFloat(document.getElementById('paragraphSpacing').value),
+                textAlignment: document.getElementById('textAlignment').value,
+                pageSize: document.getElementById('pageSize').value,
+                topMargin: mmToPt(parseInt(document.getElementById('topMargin').value)),
+                sideMargin: mmToPt(parseInt(document.getElementById('sideMargin').value)),
+                bottomMargin: mmToPt(parseInt(document.getElementById('bottomMargin').value)),
+                docTitle: document.getElementById('docTitle').value.trim(),
+                authorName: document.getElementById('authorName').value.trim(),
+                documentType: document.getElementById('documentType').value,
+                addPageNumbers: document.getElementById('addPageNumbers').checked,
+                preserveLineBreaks: document.getElementById('preserveLineBreaks').checked,
+                addDateStamp: document.getElementById('addDateStamp').checked,
+                includeSummary: document.getElementById('includeSummary').checked
+            };
+        }
+
+        // Create PDF document
+        function createPDFDocument(text, settings) {
+            const { jsPDF } = window.jspdf;
+            
+            const doc = settings.pageSize === 'letter' ? new jsPDF('p', 'pt', 'letter') :
+                        settings.pageSize === 'legal' ? new jsPDF('p', 'pt', 'legal') :
+                        new jsPDF('p', 'pt', 'a4');
+
+            const properties = {};
+            if (settings.docTitle) properties.title = settings.docTitle;
+            if (settings.authorName) properties.author = settings.authorName;
+            properties.creator = 'TextToPDF Pro';
+            doc.setProperties(properties);
+
+            doc.setFont(settings.fontFamily);
+            doc.setFontSize(settings.fontSize);
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const maxWidth = pageWidth - (settings.sideMargin * 2);
+            const lineHeight = settings.fontSize * settings.lineSpacing;
+            
+            let yPosition = settings.topMargin;
+
+            // Add title
+            if (settings.docTitle) {
+                doc.setFontSize(settings.fontSize + 6);
+                doc.setFont(settings.fontFamily, 'bold');
+                
+                const titleLines = doc.splitTextToSize(settings.docTitle, maxWidth);
+                titleLines.forEach(line => {
+                    const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
+                                settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                                settings.sideMargin;
+                    
+                    doc.text(line, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
+                    yPosition += lineHeight * 1.2;
+                });
+                
+                yPosition += lineHeight * settings.paragraphSpacing;
+                doc.setFont(settings.fontFamily, 'normal');
+                doc.setFontSize(settings.fontSize);
             }
 
-            const generateBtn = document.getElementById('generateBtn');
-            generateBtn.textContent = '⏳ Generating PDF...';
-            generateBtn.disabled = true;
-            statusOutput.textContent = '📊 Processing text and creating PDF...';
-
-            try {
-                const { jsPDF } = window.jspdf;
-                
-                // Get font mapping for jsPDF compatibility
-                function getFontMapping(fontName) {
-                    const fontMap = {
-                        'helvetica': 'helvetica',
-                        'times': 'times',
-                        'courier': 'courier',
-                        'arial': 'helvetica', // Fallback to helvetica
-                        'calibri': 'helvetica', // Fallback to helvetica
-                        'georgia': 'times', // Fallback to times
-                        'verdana': 'helvetica', // Fallback to helvetica
-                        'palatino': 'times', // Fallback to times
-                        'tahoma': 'helvetica', // Fallback to helvetica
-                        'trebuchet': 'helvetica' // Fallback to helvetica
-                    };
-                    return fontMap[fontName] || 'helvetica';
+            // Add author and date
+            if (settings.authorName || settings.addDateStamp) {
+                doc.setFontSize(settings.fontSize - 2);
+                let metaText = '';
+                if (settings.authorName) metaText += 'By: ' + settings.authorName;
+                if (settings.addDateStamp) {
+                    if (metaText) metaText += ' | ';
+                    metaText += 'Date: ' + new Date().toLocaleDateString();
                 }
-
-                // Get all settings
-                const settings = {
-                    fontSize: parseInt(document.getElementById('fontSize').value),
-                    fontFamily: document.getElementById('fontFamily').value,
-                    fontFamilyMapped: getFontMapping(document.getElementById('fontFamily').value),
-                    lineSpacing: parseFloat(document.getElementById('lineSpacing').value),
-                    paragraphSpacing: parseFloat(document.getElementById('paragraphSpacing').value),
-                    textAlignment: document.getElementById('textAlignment').value,
-                    pageSize: document.getElementById('pageSize').value,
-                    topMargin: mmToPt(parseInt(document.getElementById('topMargin').value)),
-                    sideMargin: mmToPt(parseInt(document.getElementById('sideMargin').value)),
-                    bottomMargin: mmToPt(parseInt(document.getElementById('bottomMargin').value)),
-                    docTitle: document.getElementById('docTitle').value.trim(),
-                    authorName: document.getElementById('authorName').value.trim(),
-                    docSubject: document.getElementById('docSubject').value.trim(),
-                    documentType: document.getElementById('documentType').value,
-                    addPageNumbers: document.getElementById('addPageNumbers').checked,
-                    preserveLineBreaks: document.getElementById('preserveLineBreaks').checked,
-                    addDateStamp: document.getElementById('addDateStamp').checked,
-                    enableHyphenation: document.getElementById('enableHyphenation').checked
-                };
-
-                // Create PDF with specified page size
-                const doc = settings.pageSize === 'letter' ? new jsPDF('p', 'pt', 'letter') :
-                            settings.pageSize === 'legal' ? new jsPDF('p', 'pt', 'legal') :
-                            new jsPDF('p', 'pt', 'a4');
-
-                // Set document properties (using setProperties for compatibility)
-                const properties = {};
-                if (settings.docTitle) properties.title = settings.docTitle;
-                if (settings.authorName) properties.author = settings.authorName;
-                properties.creator = 'TextToPDF Pro';
-                doc.setProperties(properties);
-
-                // Set font
-                doc.setFont(settings.fontFamily);
+                
+                const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
+                            settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                            settings.sideMargin;
+                
+                doc.text(metaText, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
+                yPosition += lineHeight * (settings.paragraphSpacing + 1);
                 doc.setFontSize(settings.fontSize);
+            }
 
-                // Page dimensions
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const maxWidth = pageWidth - (settings.sideMargin * 2);
-                const lineHeight = settings.fontSize * settings.lineSpacing;
+            // Add summary
+            if (settings.includeSummary) {
+                const summaryText = simpleSummary(text, 3);
                 
-                let yPosition = settings.topMargin;
-
-                // Add title if provided
-                if (settings.docTitle) {
-                    doc.setFontSize(settings.fontSize + 6);
-                    doc.setFont(settings.fontFamily, 'bold');
-                    
-                    const titleLines = doc.splitTextToSize(settings.docTitle, maxWidth);
-                    titleLines.forEach(line => {
-                        const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
-                                    settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
-                                    settings.sideMargin;
-                        
-                        doc.text(line, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
-                        yPosition += lineHeight * 1.2;
-                    });
-                    
-                    yPosition += lineHeight * settings.paragraphSpacing;
-                    doc.setFont(settings.fontFamily, 'normal');
+                if (summaryText) {
                     doc.setFontSize(settings.fontSize);
-                }
-
-                // Add author and date if specified
-                if (settings.authorName || settings.addDateStamp) {
-                    doc.setFontSize(settings.fontSize - 2);
-                    let metaText = '';
-                    if (settings.authorName) metaText += `By: ${settings.authorName}`;
-                    if (settings.addDateStamp) {
-                        if (metaText) metaText += ' | ';
-                        metaText += `Date: ${new Date().toLocaleDateString()}`;
-                    }
+                    
                     
                     const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
                                 settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
                                 settings.sideMargin;
                     
-                    doc.text(metaText, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
-                    yPosition += lineHeight * (settings.paragraphSpacing + 1);
-                    doc.setFontSize(settings.fontSize);
-                }
-
-                // Process text
-                const processedText = preprocessText(text, settings.preserveLineBreaks);
-                const paragraphs = splitIntoParagraphs(processedText);
-
-                // Add paragraphs
-                paragraphs.forEach((paragraph, index) => {
-                    const lines = doc.splitTextToSize(paragraph, maxWidth);
+                    doc.text('Summary', xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
+                    yPosition += lineHeight * 1.2;
                     
-                    lines.forEach((line, lineIndex) => {
-                        // Check for page break
+                    doc.setFont(settings.fontFamily, 'normal');
+                    doc.setFontSize(settings.fontSize);
+                    
+                    const summaryLines = doc.splitTextToSize(summaryText, maxWidth);
+                    summaryLines.forEach((line, lineIndex) => {
                         if (yPosition + lineHeight > pageHeight - settings.bottomMargin) {
                             doc.addPage();
                             yPosition = settings.topMargin;
@@ -778,7 +791,7 @@ This advanced converter gives you complete control over formatting, spacing, mar
                             } else if (settings.textAlignment === 'right') {
                                 xPos = pageWidth - settings.sideMargin;
                                 doc.text(trimmedLine, xPos, yPosition, { align: 'right' });
-                            } else if (settings.textAlignment === 'justify' && lineIndex < lines.length - 1) {
+                            } else if (settings.textAlignment === 'justify' && lineIndex < summaryLines.length - 1) {
                                 addJustifiedText(doc, trimmedLine, xPos, yPosition, maxWidth, settings.fontSize);
                             } else {
                                 doc.text(trimmedLine, xPos, yPosition);
@@ -788,65 +801,266 @@ This advanced converter gives you complete control over formatting, spacing, mar
                         yPosition += lineHeight;
                     });
                     
-                    // Add paragraph spacing
-                    if (index < paragraphs.length - 1) {
-                        yPosition += lineHeight * settings.paragraphSpacing;
-                    }
-                });
-
-                // Add page numbers
-                if (settings.addPageNumbers) {
-                    const pageCount = doc.internal.getNumberOfPages();
-                    doc.setFontSize(10);
-                    
-                    for (let i = 1; i <= pageCount; i++) {
-                        doc.setPage(i);
-                        doc.text(`Page ${i} of ${pageCount}`, 
-                                pageWidth / 2, 
-                                pageHeight - 20, 
-                                { align: 'center' });
-                    }
+                    yPosition += lineHeight * (settings.paragraphSpacing + 0.5);
                 }
+            }
+
+            // Process main text
+            const processedText = preprocessText(text, settings.preserveLineBreaks);
+            const paragraphs = splitIntoParagraphs(processedText);
+
+            paragraphs.forEach((paragraph, index) => {
+                const lines = doc.splitTextToSize(paragraph, maxWidth);
+                
+                lines.forEach((line, lineIndex) => {
+                    if (yPosition + lineHeight > pageHeight - settings.bottomMargin) {
+                        doc.addPage();
+                        yPosition = settings.topMargin;
+                    }
+
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                        let xPos = settings.sideMargin;
+                        
+                        if (settings.textAlignment === 'center') {
+                            xPos = pageWidth / 2;
+                            doc.text(trimmedLine, xPos, yPosition, { align: 'center' });
+                        } else if (settings.textAlignment === 'right') {
+                            xPos = pageWidth - settings.sideMargin;
+                            doc.text(trimmedLine, xPos, yPosition, { align: 'right' });
+                        } else if (settings.textAlignment === 'justify' && lineIndex < lines.length - 1) {
+                            addJustifiedText(doc, trimmedLine, xPos, yPosition, maxWidth, settings.fontSize);
+                        } else {
+                            doc.text(trimmedLine, xPos, yPosition);
+                        }
+                    }
+                    
+                    yPosition += lineHeight;
+                });
+                
+                if (index < paragraphs.length - 1) {
+                    yPosition += lineHeight * settings.paragraphSpacing;
+                }
+            });
+
+            // Add page numbers
+            if (settings.addPageNumbers) {
+                const pageCount = doc.internal.getNumberOfPages();
+                doc.setFontSize(10);
+                
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.text('Page ' + i + ' of ' + pageCount, 
+                            pageWidth / 2, 
+                            pageHeight - 20, 
+                            { align: 'center' });
+                }
+            }
+
+            return doc;
+        }
+
+        // Update stats
+        function updateStats() {
+            const text = textInput.value;
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const chars = text.length;
+
+            wordCount.textContent = words.toLocaleString();
+            charCount.textContent = chars.toLocaleString();
+
+            generateBtn.disabled = text.trim().length === 0;
+        }
+
+        // Update preview settings display
+        function updatePreviewSettings() {
+            const fontSize = document.getElementById('fontSize').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+            const lineSpacing = document.getElementById('lineSpacing').value;
+            const alignment = document.getElementById('textAlignment').value;
+            const margins = document.getElementById('sideMargin').value;
+            const docType = document.getElementById('documentType').value;
+            const includeSummary = document.getElementById('includeSummary').checked;
+            
+            let settingsText = 'Current settings: ' + fontSize + 'pt ' + fontFamily + ' font, ' + lineSpacing + 'x line spacing, ' + margins + 'mm margins, ' + alignment + '-aligned ' + docType + ' document';
+            
+            if (includeSummary) {
+                settingsText += ' with auto summary';
+            }
+            
+            previewSettings.textContent = settingsText + '.';
+        }
+
+        // Schedule preview update with debouncing
+        function schedulePreviewUpdate() {
+            if (!document.getElementById('enableLivePreview').checked) return;
+            
+            clearTimeout(previewUpdateTimeout);
+            previewStatus.textContent = 'Updating...';
+            
+            previewUpdateTimeout = setTimeout(function() {
+                updatePreview();
+            }, 500);
+        }
+
+        // Toggle preview panel visibility
+        function togglePreviewPanel() {
+            const isEnabled = document.getElementById('enableLivePreview').checked;
+            
+            if (isEnabled) {
+                previewPanel.classList.remove('hidden');
+                schedulePreviewUpdate();
+            } else {
+                previewPanel.classList.add('hidden');
+            }
+        }
+
+        // Update live preview
+        function updatePreview() {
+            const text = textInput.value.trim();
+            
+            if (!text || !document.getElementById('enableLivePreview').checked) {
+                previewFrame.style.display = 'none';
+                previewLoading.style.display = 'flex';
+                previewLoading.textContent = text ? 'Live preview disabled' : 'Enter text to see preview...';
+                previewStatus.textContent = 'Ready';
+                return;
+            }
+
+            try {
+                const settings = getCurrentSettings();
+                const doc = createPDFDocument(text, settings);
+                const pdfBlob = doc.output('blob');
+                
+                // Clean up previous blob
+                if (currentPreviewBlob) {
+                    URL.revokeObjectURL(currentPreviewBlob);
+                }
+                
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                currentPreviewBlob = blobUrl;
+                
+                previewFrame.data = blobUrl;
+                previewFrame.style.display = 'block';
+                previewLoading.style.display = 'none';
+                previewStatus.textContent = 'Updated';
+                
+            } catch (error) {
+                console.error('Preview generation error:', error);
+                previewFrame.style.display = 'none';
+                previewLoading.style.display = 'flex';
+                previewLoading.textContent = 'Preview error: ' + error.message;
+                previewStatus.textContent = 'Error';
+            }
+        }
+
+        // Main PDF generation function
+        function generatePDF() {
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('Please enter some text before generating PDF!');
+                return;
+            }
+
+            generateBtn.textContent = 'Generating PDF...';
+            generateBtn.disabled = true;
+            statusOutput.textContent = 'Processing text and creating PDF...';
+
+            try {
+                const settings = getCurrentSettings();
+                const doc = createPDFDocument(text, settings);
 
                 // Generate filename
                 const timestamp = new Date().toISOString().slice(0, 10);
                 const filename = settings.docTitle ? 
-                    `${settings.docTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_')}.pdf` : 
-                    `document_${timestamp}.pdf`;
+                    settings.docTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') + '.pdf' : 
+                    'document_' + timestamp + '.pdf';
 
-                // Save PDF
                 doc.save(filename);
 
                 // Success feedback
-                statusOutput.innerHTML = '✅ PDF generated successfully!';
-                generateBtn.textContent = '✅ PDF Created!';
+                statusOutput.textContent = 'PDF generated successfully!';
+                generateBtn.textContent = 'PDF Created!';
                 generateBtn.style.background = 'linear-gradient(135deg, #00b894, #00a085)';
                 
-                setTimeout(() => {
-                    generateBtn.textContent = '🚀 Generate Professional PDF';
+                setTimeout(function() {
+                    generateBtn.textContent = 'Generate Professional PDF';
                     generateBtn.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
                     generateBtn.disabled = false;
                 }, 3000);
 
             } catch (error) {
                 console.error('PDF generation error:', error);
-                statusOutput.innerHTML = `❌ Error: ${error.message}`;
-                alert(`Error generating PDF: ${error.message}`);
-                generateBtn.textContent = '🚀 Generate Professional PDF';
+                statusOutput.textContent = 'Error: ' + error.message;
+                alert('Error generating PDF: ' + error.message);
+                generateBtn.textContent = 'Generate Professional PDF';
                 generateBtn.disabled = false;
             }
         }
 
-        // Initialize
-        setTimeout(() => {
-            if (typeof window.jspdf !== 'undefined') {
-                statusOutput.innerHTML = '✅ PDF engine ready';
-            } else {
-                statusOutput.innerHTML = '❌ PDF engine failed to load';
-            }
+        // Event listeners
+        function setupEventListeners() {
+            // Text input events
+            textInput.addEventListener('input', function() {
+                updateStats();
+                schedulePreviewUpdate();
+            });
+
+            // Auto-format on paste
+            textInput.addEventListener('paste', function(e) {
+                setTimeout(function() {
+                    const rawText = textInput.value;
+                    const formattedText = autoFormatText(rawText);
+                    if (formattedText !== rawText) {
+                        textInput.value = formattedText;
+                        updateStats();
+                        schedulePreviewUpdate();
+                    }
+                }, 10);
+            });
+
+            // Control change events
+            const controls = ['fontFamily', 'textAlignment', 'pageSize', 'docTitle', 'authorName', 'documentType', 'addPageNumbers', 'preserveLineBreaks', 'addDateStamp', 'includeSummary'];
+            controls.forEach(function(id) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', function() {
+                        updatePreviewSettings();
+                        schedulePreviewUpdate();
+                    });
+                }
+            });
+
+            // Preview toggle
+            document.getElementById('enableLivePreview').addEventListener('change', togglePreviewPanel);
+
+            // Generate button
+            generateBtn.addEventListener('click', generatePDF);
+        }
+
+        // Initialize application
+        function initialize() {
+            initializeRanges();
+            setupEventListeners();
             updateStats();
             updatePreviewSettings();
-        }, 1000);
+
+            // Check if jsPDF is loaded
+            setTimeout(function() {
+                if (typeof window.jspdf !== 'undefined') {
+                    statusOutput.textContent = 'PDF engine ready';
+                    if (textInput.value.trim()) {
+                        schedulePreviewUpdate();
+                    }
+                } else {
+                    statusOutput.textContent = 'PDF engine failed to load';
+                }
+            }, 1000);
+        }
+
+        // Start the application
+        initialize();
     </script>
 </body>
+</html>
 </html>
