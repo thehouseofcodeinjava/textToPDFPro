@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextToPDF Pro - Advanced Text to PDF Converter</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { overflow-x: hidden; } /* prevent sideways scroll on mobile */
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -25,6 +23,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
+            width: 100%;
         }
 
         .header {
@@ -34,15 +33,8 @@
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
 
         .main-content {
             display: grid;
@@ -51,18 +43,9 @@
             min-height: 600px;
         }
 
-        .text-area-section {
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-        }
+        .text-area-section { padding: 30px; display: flex; flex-direction: column; }
 
-        .text-area-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #333;
-        }
+        .text-area-label { font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; color: #333; }
 
         #textInput {
             width: 100%;
@@ -96,11 +79,10 @@
             display: flex;
             flex-direction: column;
             margin-top: 30px;
+            overflow: hidden; /* keep children from overflowing */
         }
 
-        .preview-panel.hidden {
-            display: none;
-        }
+        .preview-panel.hidden { display: none; }
 
         .preview-header {
             display: flex;
@@ -109,27 +91,38 @@
             margin-bottom: 15px;
         }
 
-        .preview-title {
-            font-weight: 600;
-            color: #333;
-            font-size: 0.9rem;
-        }
+        .preview-title { font-weight: 600; color: #333; font-size: 0.9rem; }
+        .preview-status { font-size: 0.75rem; color: #666; background: #e8f4fd; padding: 4px 8px; border-radius: 4px; }
 
-        .preview-status {
-            font-size: 0.75rem;
-            color: #666;
-            background: #e8f4fd;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
+        /* --- PREVIEW CONTAINERS --- */
         #previewFrame {
             width: 100%;
-            height: 100%;
-            min-height: 500px;
+            height: auto;
+            min-height: 300px;
+            max-height: 70vh;
             border: 2px solid #e1e5e9;
             border-radius: 8px;
             background: #fafafa;
+        }
+
+        /* PDF.js viewer container for mobile */
+        #pdfJsViewer {
+            display: none;
+            width: 100%;
+            min-height: 300px;
+            max-height: 70vh;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: #fafafa;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Ensure the PDF canvas never overflows horizontally */
+        #pdfJsViewer canvas {
+            width: 100% !important;
+            height: auto !important;
+            display: block;
         }
 
         .preview-loading {
@@ -150,20 +143,10 @@
             border: 1px solid #e1e5e9;
         }
 
-        .control-section h3 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-        }
+        .control-section h3 { font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 15px; }
 
-        .control-group {
-            margin-bottom: 15px;
-        }
-
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
+        .control-group { margin-bottom: 15px; }
+        .control-group:last-child { margin-bottom: 0; }
 
         .control-group label {
             display: block;
@@ -184,22 +167,9 @@
             background: white;
         }
 
-        .range-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .range-group input[type="range"] {
-            flex: 1;
-        }
-
-        .range-value {
-            min-width: 35px;
-            font-weight: 600;
-            color: #4facfe;
-            font-size: 0.85rem;
-        }
+        .range-group { display: flex; align-items: center; gap: 10px; }
+        .range-group input[type="range"] { flex: 1; }
+        .range-value { min-width: 35px; font-weight: 600; color: #4facfe; font-size: 0.85rem; }
 
         .stats {
             display: grid;
@@ -212,21 +182,9 @@
             border: 1px solid #e1e5e9;
         }
 
-        .stat {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #4facfe;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: 3px;
-        }
+        .stat { text-align: center; }
+        .stat-number { font-size: 1.2rem; font-weight: 700; color: #4facfe; }
+        .stat-label { font-size: 0.75rem; color: #666; margin-top: 3px; }
 
         .generate-btn {
             width: 100%;
@@ -242,89 +200,30 @@
             margin-top: 20px;
         }
 
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(238, 90, 36, 0.3);
-        }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(238, 90, 36, 0.3); }
+        .generate-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
-        .generate-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .status-info { background: #e8f4fd; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 11px; }
+        .status-info h4 { color: #0066cc; margin-bottom: 6px; font-size: 0.8rem; }
+        #statusOutput { color: #0066cc; font-family: monospace; font-size: 11px; }
 
-        .status-info {
-            background: #e8f4fd;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 11px;
-        }
+        .checkbox-option { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .checkbox-option input[type="checkbox"] { width: auto; }
+        .checkbox-option label { margin-bottom: 0; font-size: 0.8rem; }
 
-        .status-info h4 {
-            color: #0066cc;
-            margin-bottom: 6px;
-            font-size: 0.8rem;
-        }
-
-        #statusOutput {
-            color: #0066cc;
-            font-family: monospace;
-            font-size: 11px;
-        }
-
-        .checkbox-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .checkbox-option input[type="checkbox"] {
-            width: auto;
-        }
-
-        .checkbox-option label {
-            margin-bottom: 0;
-            font-size: 0.8rem;
-        }
-
-        .preview-settings {
-            background: #f0f8ff;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            color: #2c5282;
-            margin-top: 10px;
-        }
+        .preview-settings { background: #f0f8ff; padding: 10px; border-radius: 6px; font-size: 11px; color: #2c5282; margin-top: 10px; }
 
         @media (max-width: 1200px) {
-            .main-content {
-                grid-template-columns: 1fr 300px;
-            }
+            .main-content { grid-template-columns: 1fr 300px; }
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            #textInput {
-                height: 350px;
-            }
-            
-            .controls-panel {
-                border-left: none;
-                border-top: 1px solid #e1e5e9;
-            }
-
-            .preview-panel {
-                border-top: 1px solid #e1e5e9;
-            }
+            .main-content { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2rem; }
+            #textInput { height: 350px; }
+            .controls-panel { border-left: none; border-top: 1px solid #e1e5e9; }
+            .preview-panel { border-top: 1px solid #e1e5e9; }
+            #previewFrame, #pdfJsViewer { min-height: 300px; max-height: 60vh; }
         }
     </style>
 </head>
@@ -357,9 +256,8 @@ This converter automatically formats your text and provides live preview."></tex
                         Enter text to see preview...
                     </div>
                     <iframe id="previewFrame" style="width:100%; min-height:500px; border:2px solid #e1e5e9; border-radius:8px; display:none;"></iframe>
-                    <div id="pdfJsViewer" style="width:100%; min-height:500px; border:2px solid #e1e5e9; border-radius:8px; display:none; background:#fafafa; overflow:auto;"></div>
-
-                    
+                    <!-- NEW: inline PDF.js container for mobile -->
+                    <div id="pdfJsViewer" aria-label="PDF preview"></div>
                 </div>
             </div>
             
@@ -511,13 +409,20 @@ This converter automatically formats your text and provides live preview."></tex
             </div>
         </div>
     </div>
-     <!-- Add this right above your jsPDF script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- PDF.js (for mobile inline preview) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
         // Global variables
         let previewUpdateTimeout = null;
         let currentPreviewBlob = null;
+        let pdfResizeTimeout = null;
 
         // DOM elements
         const textInput = document.getElementById('textInput');
@@ -531,7 +436,6 @@ This converter automatically formats your text and provides live preview."></tex
         const previewStatus = document.getElementById('previewStatus');
         const generateBtn = document.getElementById('generateBtn');
 
-        // Range inputs with displays
         const rangeInputs = {
             fontSize: { input: document.getElementById('fontSize'), display: document.getElementById('fontSizeValue'), suffix: 'pt' },
             lineSpacing: { input: document.getElementById('lineSpacing'), display: document.getElementById('lineSpacingValue'), suffix: 'x' },
@@ -541,12 +445,10 @@ This converter automatically formats your text and provides live preview."></tex
             bottomMargin: { input: document.getElementById('bottomMargin'), display: document.getElementById('bottomMarginValue'), suffix: 'mm' }
         };
 
-        // Initialize range displays
         function initializeRanges() {
             Object.keys(rangeInputs).forEach(key => {
                 const range = rangeInputs[key];
                 range.display.textContent = range.input.value + range.suffix;
-                
                 range.input.addEventListener('input', function() {
                     range.display.textContent = range.input.value + range.suffix;
                     updatePreviewSettings();
@@ -555,125 +457,57 @@ This converter automatically formats your text and provides live preview."></tex
             });
         }
 
-        // Auto-format text function
         function autoFormatText(text) {
-            // Remove lines that only contain dashes or underscores
             text = text.replace(/^\s*[-_]{2,}\s*$/gm, '');
-            
-            // Replace multiple empty lines with just double line breaks
             text = text.replace(/\n{3,}/g, '\n\n');
-            
-            // Trim trailing spaces from each line
             text = text.replace(/ +$/gm, '');
-            
-            // Normalize bullet points to consistent bullet character
             text = text.replace(/^\s*[-*]\s+/gm, '• ');
-            
             return text.trim();
         }
 
-        // Simple summary function
-       // Simple summary function
-function simpleSummary(text, sentenceCount = 3) {
-    // Remove markdown heading markers like ### or --- before summarizing
-    let cleanText = text.replace(/#{3,}/g, '').replace(/-{3,}/g, '');
-    cleanText = cleanText.trim().replace(/\s+/g, ' ');
-
-    const sentences = cleanText.match(/[^\.!\?]+[\.!\?]+/g);
-    
-    if (!sentences || sentences.length === 0) {
-        return '';
-    }
-    
-    const summarySentences = sentences
-        .slice(0, Math.min(sentenceCount, sentences.length))
-        .map(sentence => sentence.trim())
-        .filter(sentence => sentence.length > 0);
-    
-    return summarySentences.join(' ');
-}
-// Simple summary function
-function simpleSummary(text, sentenceCount = 3) {
-    // Remove markdown heading markers like ### or --- before summarizing
-    let cleanText = text.replace(/#{3,}/g, '').replace(/-{3,}/g, '');
-    cleanText = cleanText.trim().replace(/\s+/g, ' ');
-
-    const sentences = cleanText.match(/[^\.!\?]+[\.!\?]+/g);
-    
-    if (!sentences || sentences.length === 0) {
-        return '';
-    }
-    
-    const summarySentences = sentences
-        .slice(0, Math.min(sentenceCount, sentences.length))
-        .map(sentence => sentence.trim())
-        .filter(sentence => sentence.length > 0);
-    
-    return summarySentences.join(' ');
-}
-
-
-        // Convert mm to PDF points
-        function mmToPt(mm) {
-            return mm * 2.834645669;
+        // Simple summary (kept as in your code)
+        function simpleSummary(text, sentenceCount = 3) {
+            let cleanText = text.replace(/#{3,}/g, '').replace(/-{3,}/g, '');
+            cleanText = cleanText.trim().replace(/\s+/g, ' ');
+            const sentences = cleanText.match(/[^\.!\?]+[\.!\?]+/g);
+            if (!sentences || sentences.length === 0) return '';
+            const summarySentences = sentences
+                .slice(0, Math.min(sentenceCount, sentences.length))
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+            return summarySentences.join(' ');
         }
 
-        // Text preprocessing
-function preprocessText(text, preserveLineBreaks = true) {
-    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    
-    // Remove any "###" or "---" sequences (anywhere in the text)
-    text = text.replace(/#{3,}/g, '');
-    text = text.replace(/-{3,}/g, '');
+        function mmToPt(mm) { return mm * 2.834645669; }
 
-    if (preserveLineBreaks) {
-        text = text.replace(/\n{3,}/g, '\n\n');
-    } else {
-        text = text.replace(/([^\n])\n([^\n])/g, '$1 $2');
-    }
-    
-    text = text.replace(/\t/g, '    ');
-    text = text.replace(/ +/g, ' ');
-    text = text.replace(/ +$/gm, '');
-    
-    return text.trim();
-}
+        function preprocessText(text, preserveLineBreaks = true) {
+            text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            text = text.replace(/#{3,}/g, '');
+            text = text.replace(/-{3,}/g, '');
+            if (preserveLineBreaks) { text = text.replace(/\n{3,}/g, '\n\n'); }
+            else { text = text.replace(/([^\n])\n([^\n])/g, '$1 $2'); }
+            text = text.replace(/\t/g, '    ').replace(/ +/g, ' ').replace(/ +$/gm, '');
+            return text.trim();
+        }
 
-
-
-
-        // Split text into paragraphs
         function splitIntoParagraphs(text) {
             return text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
         }
 
-        // Add justified text
         function addJustifiedText(doc, text, x, y, maxWidth, fontSize) {
             const words = text.trim().split(/\s+/);
-            if (words.length <= 1) {
-                doc.text(text, x, y);
-                return;
-            }
-            
-            const totalTextWidth = words.reduce((sum, word) => sum + doc.getTextWidth(word), 0);
+            if (words.length <= 1) { doc.text(text, x, y); return; }
+            const totalTextWidth = words.reduce((sum, w) => sum + doc.getTextWidth(w), 0);
             const totalSpaceWidth = maxWidth - totalTextWidth;
             const spaceWidth = totalSpaceWidth / (words.length - 1);
-            
-            if (spaceWidth > fontSize * 0.5) {
-                doc.text(text, x, y);
-                return;
-            }
-            
+            if (spaceWidth > fontSize * 0.5) { doc.text(text, x, y); return; }
             let currentX = x;
             for (let i = 0; i < words.length; i++) {
                 doc.text(words[i], currentX, y);
-                if (i < words.length - 1) {
-                    currentX += doc.getTextWidth(words[i]) + spaceWidth;
-                }
+                if (i < words.length - 1) { currentX += doc.getTextWidth(words[i]) + spaceWidth; }
             }
         }
 
-        // Get current settings
         function getCurrentSettings() {
             return {
                 fontSize: parseInt(document.getElementById('fontSize').value),
@@ -695,10 +529,8 @@ function preprocessText(text, preserveLineBreaks = true) {
             };
         }
 
-        // Create PDF document
         function createPDFDocument(text, settings) {
             const { jsPDF } = window.jspdf;
-            
             const doc = settings.pageSize === 'letter' ? new jsPDF('p', 'pt', 'letter') :
                         settings.pageSize === 'legal' ? new jsPDF('p', 'pt', 'legal') :
                         new jsPDF('p', 'pt', 'a4');
@@ -716,30 +548,24 @@ function preprocessText(text, preserveLineBreaks = true) {
             const pageHeight = doc.internal.pageSize.getHeight();
             const maxWidth = pageWidth - (settings.sideMargin * 2);
             const lineHeight = settings.fontSize * settings.lineSpacing;
-            
             let yPosition = settings.topMargin;
 
-            // Add title
             if (settings.docTitle) {
                 doc.setFontSize(settings.fontSize + 6);
                 doc.setFont(settings.fontFamily, 'bold');
-                
                 const titleLines = doc.splitTextToSize(settings.docTitle, maxWidth);
                 titleLines.forEach(line => {
                     const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
-                                settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
-                                settings.sideMargin;
-                    
+                                 settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                                 settings.sideMargin;
                     doc.text(line, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
                     yPosition += lineHeight * 1.2;
                 });
-                
                 yPosition += lineHeight * settings.paragraphSpacing;
                 doc.setFont(settings.fontFamily, 'normal');
                 doc.setFontSize(settings.fontSize);
             }
 
-            // Add author and date
             if (settings.authorName || settings.addDateStamp) {
                 doc.setFontSize(settings.fontSize - 2);
                 let metaText = '';
@@ -748,45 +574,35 @@ function preprocessText(text, preserveLineBreaks = true) {
                     if (metaText) metaText += ' | ';
                     metaText += 'Date: ' + new Date().toLocaleDateString();
                 }
-                
                 const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
-                            settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
-                            settings.sideMargin;
-                
+                             settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                             settings.sideMargin;
                 doc.text(metaText, xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
                 yPosition += lineHeight * (settings.paragraphSpacing + 1);
                 doc.setFontSize(settings.fontSize);
             }
 
-            // Add summary
             if (settings.includeSummary) {
                 const summaryText = simpleSummary(text, 3);
-                
                 if (summaryText) {
                     doc.setFontSize(settings.fontSize);
-                    
-                    
                     const xPos = settings.textAlignment === 'center' ? pageWidth / 2 :
-                                settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
-                                settings.sideMargin;
-                    
+                                 settings.textAlignment === 'right' ? pageWidth - settings.sideMargin :
+                                 settings.sideMargin;
                     doc.text('Summary', xPos, yPosition, { align: settings.textAlignment === 'left' ? 'left' : settings.textAlignment });
                     yPosition += lineHeight * 1.2;
-                    
+
                     doc.setFont(settings.fontFamily, 'normal');
                     doc.setFontSize(settings.fontSize);
-                    
                     const summaryLines = doc.splitTextToSize(summaryText, maxWidth);
                     summaryLines.forEach((line, lineIndex) => {
                         if (yPosition + lineHeight > pageHeight - settings.bottomMargin) {
                             doc.addPage();
                             yPosition = settings.topMargin;
                         }
-
                         const trimmedLine = line.trim();
                         if (trimmedLine) {
                             let xPos = settings.sideMargin;
-                            
                             if (settings.textAlignment === 'center') {
                                 xPos = pageWidth / 2;
                                 doc.text(trimmedLine, xPos, yPosition, { align: 'center' });
@@ -799,31 +615,25 @@ function preprocessText(text, preserveLineBreaks = true) {
                                 doc.text(trimmedLine, xPos, yPosition);
                             }
                         }
-                        
                         yPosition += lineHeight;
                     });
-                    
                     yPosition += lineHeight * (settings.paragraphSpacing + 0.5);
                 }
             }
 
-            // Process main text
             const processedText = preprocessText(text, settings.preserveLineBreaks);
             const paragraphs = splitIntoParagraphs(processedText);
 
             paragraphs.forEach((paragraph, index) => {
                 const lines = doc.splitTextToSize(paragraph, maxWidth);
-                
                 lines.forEach((line, lineIndex) => {
                     if (yPosition + lineHeight > pageHeight - settings.bottomMargin) {
                         doc.addPage();
                         yPosition = settings.topMargin;
                     }
-
                     const trimmedLine = line.trim();
                     if (trimmedLine) {
                         let xPos = settings.sideMargin;
-                        
                         if (settings.textAlignment === 'center') {
                             xPos = pageWidth / 2;
                             doc.text(trimmedLine, xPos, yPosition, { align: 'center' });
@@ -836,45 +646,36 @@ function preprocessText(text, preserveLineBreaks = true) {
                             doc.text(trimmedLine, xPos, yPosition);
                         }
                     }
-                    
                     yPosition += lineHeight;
                 });
-                
                 if (index < paragraphs.length - 1) {
                     yPosition += lineHeight * settings.paragraphSpacing;
                 }
             });
 
-            // Add page numbers
             if (settings.addPageNumbers) {
                 const pageCount = doc.internal.getNumberOfPages();
                 doc.setFontSize(10);
-                
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
-                    doc.text('Page ' + i + ' of ' + pageCount, 
-                            pageWidth / 2, 
-                            pageHeight - 20, 
-                            { align: 'center' });
+                    doc.text('Page ' + i + ' of ' + pageCount,
+                             pageWidth / 2,
+                             pageHeight - 20,
+                             { align: 'center' });
                 }
             }
-
             return doc;
         }
 
-        // Update stats
         function updateStats() {
             const text = textInput.value;
             const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
             const chars = text.length;
-
             wordCount.textContent = words.toLocaleString();
             charCount.textContent = chars.toLocaleString();
-
             generateBtn.disabled = text.trim().length === 0;
         }
 
-        // Update preview settings display
         function updatePreviewSettings() {
             const fontSize = document.getElementById('fontSize').value;
             const fontFamily = document.getElementById('fontFamily').value;
@@ -883,124 +684,122 @@ function preprocessText(text, preserveLineBreaks = true) {
             const margins = document.getElementById('sideMargin').value;
             const docType = document.getElementById('documentType').value;
             const includeSummary = document.getElementById('includeSummary').checked;
-            
-            let settingsText = 'Current settings: ' + fontSize + 'pt ' + fontFamily + ' font, ' + lineSpacing + 'x line spacing, ' + margins + 'mm margins, ' + alignment + '-aligned ' + docType + ' document';
-            
-            if (includeSummary) {
-                settingsText += ' with auto summary';
-            }
-            
-            previewSettings.textContent = settingsText + '.';
+            let s = 'Current settings: ' + fontSize + 'pt ' + fontFamily + ' font, ' + lineSpacing + 'x line spacing, ' + margins + 'mm margins, ' + alignment + '-aligned ' + docType + ' document';
+            if (includeSummary) s += ' with auto summary';
+            previewSettings.textContent = s + '.';
         }
 
-        // Schedule preview update with debouncing
         function schedulePreviewUpdate() {
             if (!document.getElementById('enableLivePreview').checked) return;
-            
             clearTimeout(previewUpdateTimeout);
             previewStatus.textContent = 'Updating...';
-            
-            previewUpdateTimeout = setTimeout(function() {
-                updatePreview();
-            }, 500);
+            previewUpdateTimeout = setTimeout(function() { updatePreview(); }, 500);
         }
 
-        // Toggle preview panel visibility
         function togglePreviewPanel() {
             const isEnabled = document.getElementById('enableLivePreview').checked;
-            
-            if (isEnabled) {
-                previewPanel.classList.remove('hidden');
-                schedulePreviewUpdate();
-            } else {
-                previewPanel.classList.add('hidden');
+            if (isEnabled) { previewPanel.classList.remove('hidden'); schedulePreviewUpdate(); }
+            else { previewPanel.classList.add('hidden'); }
+        }
+
+        /* -------- Mobile helpers -------- */
+        function isMobile() {
+            return /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        }
+
+        async function renderPdfWithPdfJs(blobUrl) {
+            const container = document.getElementById('pdfJsViewer');
+            if (!window.pdfjsLib || !container) return;
+
+            container.innerHTML = '';
+            try {
+                const loadingTask = pdfjsLib.getDocument(blobUrl);
+                const pdf = await loadingTask.promise;
+
+                // Render all pages to the container, each scaled to fit width
+                for (let p = 1; p <= pdf.numPages; p++) {
+                    const page = await pdf.getPage(p);
+                    const baseViewport = page.getViewport({ scale: 1 });
+                    // Fit page width to container width
+                    const containerWidth = container.clientWidth || container.offsetWidth || window.innerWidth;
+                    const scale = Math.max(0.1, Math.min(containerWidth / baseViewport.width, 2)); // clamp
+                    const viewport = page.getViewport({ scale });
+
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d', { alpha: false });
+
+                    canvas.width = Math.floor(viewport.width);
+                    canvas.height = Math.floor(viewport.height);
+                    canvas.style.width = '100%';
+                    canvas.style.height = 'auto';
+                    canvas.style.display = 'block';
+                    canvas.style.margin = p === 1 ? '0' : '12px 0 0 0';
+
+                    container.appendChild(canvas);
+                    await page.render({ canvasContext: context, viewport }).promise;
+                }
+
+                // Re-render on resize (debounced)
+                window.addEventListener('resize', () => {
+                    if (document.getElementById('pdfJsViewer').style.display !== 'none') {
+                        clearTimeout(pdfResizeTimeout);
+                        pdfResizeTimeout = setTimeout(() => renderPdfWithPdfJs(currentPreviewBlob), 200);
+                    }
+                });
+            } catch (e) {
+                console.error('PDF.js render error:', e);
+                container.innerHTML = '<div class="preview-loading">Preview error</div>';
             }
         }
-        function isMobile() {
-            return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        }
 
-    async function renderPdfWithPdfJs(blobUrl) {
-        const container = document.getElementById('pdfJsViewer');
-        container.innerHTML = ''; // clear previous
-
-        const pdf = await pdfjsLib.getDocument(blobUrl).promise;
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 1.2 });
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        container.appendChild(canvas);
-
-        await page.render({ canvasContext: context, viewport }).promise;
-    }
-}
-
-
-function updatePreview() {
-    const text = textInput.value.trim();
-    
-    if (!text || !document.getElementById('enableLivePreview').checked) {
-        previewFrame.style.display = 'none';
-        document.getElementById('pdfJsViewer').style.display = 'none';
-        previewLoading.style.display = 'flex';
-        previewLoading.textContent = text ? 'Live preview disabled' : 'Enter text to see preview...';
-        previewStatus.textContent = 'Ready';
-        return;
-    }
-
-    try {
-        const settings = getCurrentSettings();
-        const doc = createPDFDocument(text, settings);
-        const pdfBlob = doc.output('blob');
-        
-        if (currentPreviewBlob) {
-            URL.revokeObjectURL(currentPreviewBlob);
-        }
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        currentPreviewBlob = blobUrl;
-
-        if (isMobile()) {
-    // Mobile: render inline using PDF.js (use ArrayBuffer, not blobUrl)
-    previewFrame.style.display = 'none';
-    document.getElementById('pdfJsViewer').style.display = 'block';
-    previewLoading.style.display = 'none';
-    previewStatus.textContent = 'Updated';
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const arrayBuffer = e.target.result;
-        renderPdfWithPdfJs({ data: arrayBuffer });
-    };
-    reader.readAsArrayBuffer(pdfBlob);
-} else {
-    // Desktop: use iframe
-    document.getElementById('pdfJsViewer').style.display = 'none';
-    previewFrame.src = blobUrl;
-    previewFrame.style.display = 'block';
-    previewLoading.style.display = 'none';
-    previewStatus.textContent = 'Updated';
-}
-    } catch (error) {
-        console.error('Preview generation error:', error);
-        previewFrame.style.display = 'none';
-        document.getElementById('pdfJsViewer').style.display = 'none';
-        previewLoading.style.display = 'flex';
-        previewLoading.textContent = 'Preview error: ' + error.message;
-        previewStatus.textContent = 'Error';
-    }
-}
-
-
-        // Main PDF generation function
-        function generatePDF() {
+        // Update live preview
+        function updatePreview() {
             const text = textInput.value.trim();
-            if (!text) {
-                alert('Please enter some text before generating PDF!');
+            if (!text || !document.getElementById('enableLivePreview').checked) {
+                previewFrame.style.display = 'none';
+                document.getElementById('pdfJsViewer').style.display = 'none';
+                previewLoading.style.display = 'flex';
+                previewLoading.textContent = text ? 'Live preview disabled' : 'Enter text to see preview...';
+                previewStatus.textContent = 'Ready';
                 return;
             }
+
+            try {
+                const settings = getCurrentSettings();
+                const doc = createPDFDocument(text, settings);
+                const pdfBlob = doc.output('blob');
+
+                if (currentPreviewBlob) URL.revokeObjectURL(currentPreviewBlob);
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                currentPreviewBlob = blobUrl;
+
+                if (isMobile()) {
+                    previewFrame.style.display = 'none';
+                    const v = document.getElementById('pdfJsViewer');
+                    v.style.display = 'block';
+                    previewLoading.style.display = 'none';
+                    previewStatus.textContent = 'Updated';
+                    renderPdfWithPdfJs(blobUrl);
+                } else {
+                    document.getElementById('pdfJsViewer').style.display = 'none';
+                    previewFrame.src = blobUrl;
+                    previewFrame.style.display = 'block';
+                    previewLoading.style.display = 'none';
+                    previewStatus.textContent = 'Updated';
+                }
+            } catch (error) {
+                console.error('Preview generation error:', error);
+                previewFrame.style.display = 'none';
+                document.getElementById('pdfJsViewer').style.display = 'none';
+                previewLoading.style.display = 'flex';
+                previewLoading.textContent = 'Preview error: ' + error.message;
+                previewStatus.textContent = 'Error';
+            }
+        }
+
+        function generatePDF() {
+            const text = textInput.value.trim();
+            if (!text) { alert('Please enter some text before generating PDF!'); return; }
 
             generateBtn.textContent = 'Generating PDF...';
             generateBtn.disabled = true;
@@ -1009,16 +808,13 @@ function updatePreview() {
             try {
                 const settings = getCurrentSettings();
                 const doc = createPDFDocument(text, settings);
-
-                // Generate filename
                 const timestamp = new Date().toISOString().slice(0, 10);
-                const filename = settings.docTitle ? 
-                    settings.docTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') + '.pdf' : 
+                const filename = settings.docTitle ?
+                    settings.docTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_') + '.pdf' :
                     'document_' + timestamp + '.pdf';
 
                 doc.save(filename);
 
-                // Success feedback
                 statusOutput.textContent = 'PDF generated successfully!';
                 generateBtn.textContent = 'PDF Created!';
                 generateBtn.style.background = 'linear-gradient(135deg, #00b894, #00a085)';
@@ -1038,16 +834,10 @@ function updatePreview() {
             }
         }
 
-        // Event listeners
         function setupEventListeners() {
-            // Text input events
-            textInput.addEventListener('input', function() {
-                updateStats();
-                schedulePreviewUpdate();
-            });
+            textInput.addEventListener('input', function() { updateStats(); schedulePreviewUpdate(); });
 
-            // Auto-format on paste
-            textInput.addEventListener('paste', function(e) {
+            textInput.addEventListener('paste', function() {
                 setTimeout(function() {
                     const rawText = textInput.value;
                     const formattedText = autoFormatText(rawText);
@@ -1059,48 +849,33 @@ function updatePreview() {
                 }, 10);
             });
 
-            // Control change events
             const controls = ['fontFamily', 'textAlignment', 'pageSize', 'docTitle', 'authorName', 'documentType', 'addPageNumbers', 'preserveLineBreaks', 'addDateStamp', 'includeSummary'];
             controls.forEach(function(id) {
                 const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('change', function() {
-                        updatePreviewSettings();
-                        schedulePreviewUpdate();
-                    });
-                }
+                if (element) element.addEventListener('change', function() { updatePreviewSettings(); schedulePreviewUpdate(); });
             });
 
-            // Preview toggle
             document.getElementById('enableLivePreview').addEventListener('change', togglePreviewPanel);
-
-            // Generate button
             generateBtn.addEventListener('click', generatePDF);
         }
 
-        // Initialize application
         function initialize() {
             initializeRanges();
             setupEventListeners();
             updateStats();
             updatePreviewSettings();
 
-            // Check if jsPDF is loaded
             setTimeout(function() {
                 if (typeof window.jspdf !== 'undefined') {
                     statusOutput.textContent = 'PDF engine ready';
-                    if (textInput.value.trim()) {
-                        schedulePreviewUpdate();
-                    }
+                    if (textInput.value.trim()) schedulePreviewUpdate();
                 } else {
                     statusOutput.textContent = 'PDF engine failed to load';
                 }
             }, 1000);
         }
 
-        // Start the application
         initialize();
     </script>
 </body>
 </html>
-
