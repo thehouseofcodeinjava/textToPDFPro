@@ -356,8 +356,9 @@ This converter automatically formats your text and provides live preview."></tex
                     <div class="preview-loading" id="previewLoading">
                         Enter text to see preview...
                     </div>
-                    <iframe id="previewFrame" style="width:100%; min-height:500px; border:2px solid #e1e5e9; border-radius:8px; display:none;">
-                    </iframe>
+                    <iframe id="previewFrame" style="width:100%; min-height:500px; border:2px solid #e1e5e9; border-radius:8px; display:none;"></iframe>
+                    <div id="pdfJsViewer" style="width:100%; min-height:500px; border:2px solid #e1e5e9; border-radius:8px; display:none; background:#fafafa; overflow:auto;"></div>
+
                     
                 </div>
             </div>
@@ -510,7 +511,8 @@ This converter automatically formats your text and provides live preview."></tex
             </div>
         </div>
     </div>
-
+     <!-- Add this right above your jsPDF script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         // Global variables
@@ -914,45 +916,83 @@ function preprocessText(text, preserveLineBreaks = true) {
                 previewPanel.classList.add('hidden');
             }
         }
-
-        // Update live preview
-        function updatePreview() {
-            const text = textInput.value.trim();
-            
-            if (!text || !document.getElementById('enableLivePreview').checked) {
-                previewFrame.style.display = 'none';
-                previewLoading.style.display = 'flex';
-                previewLoading.textContent = text ? 'Live preview disabled' : 'Enter text to see preview...';
-                previewStatus.textContent = 'Ready';
-                return;
-            }
-
-            try {
-                const settings = getCurrentSettings();
-                const doc = createPDFDocument(text, settings);
-                const pdfBlob = doc.output('blob');
-                
-                // Clean up previous blob
-                if (currentPreviewBlob) {
-                    URL.revokeObjectURL(currentPreviewBlob);
-                }
-                
-                const blobUrl = URL.createObjectURL(pdfBlob);
-                currentPreviewBlob = blobUrl;
-                
-                previewFrame.src = blobUrl;
-                previewFrame.style.display = 'block';
-                previewLoading.style.display = 'none';
-                previewStatus.textContent = 'Updated';
-                
-            } catch (error) {
-                console.error('Preview generation error:', error);
-                previewFrame.style.display = 'none';
-                previewLoading.style.display = 'flex';
-                previewLoading.textContent = 'Preview error: ' + error.message;
-                previewStatus.textContent = 'Error';
-            }
+        function isMobile() {
+            return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         }
+
+    async function renderPdfWithPdfJs(blobUrl) {
+        const container = document.getElementById('pdfJsViewer');
+        container.innerHTML = ''; // clear previous
+
+        const pdf = await pdfjsLib.getDocument(blobUrl).promise;
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.2 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        container.appendChild(canvas);
+
+        await page.render({ canvasContext: context, viewport }).promise;
+    }
+}
+
+
+function updatePreview() {
+    const text = textInput.value.trim();
+    
+    if (!text || !document.getElementById('enableLivePreview').checked) {
+        previewFrame.style.display = 'none';
+        document.getElementById('pdfJsViewer').style.display = 'none';
+        previewLoading.style.display = 'flex';
+        previewLoading.textContent = text ? 'Live preview disabled' : 'Enter text to see preview...';
+        previewStatus.textContent = 'Ready';
+        return;
+    }
+
+    try {
+        const settings = getCurrentSettings();
+        const doc = createPDFDocument(text, settings);
+        const pdfBlob = doc.output('blob');
+        
+        if (currentPreviewBlob) {
+            URL.revokeObjectURL(currentPreviewBlob);
+        }
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        currentPreviewBlob = blobUrl;
+
+        if (isMobile()) {
+    // Mobile: render inline using PDF.js (use ArrayBuffer, not blobUrl)
+    previewFrame.style.display = 'none';
+    document.getElementById('pdfJsViewer').style.display = 'block';
+    previewLoading.style.display = 'none';
+    previewStatus.textContent = 'Updated';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const arrayBuffer = e.target.result;
+        renderPdfWithPdfJs({ data: arrayBuffer });
+    };
+    reader.readAsArrayBuffer(pdfBlob);
+} else {
+    // Desktop: use iframe
+    document.getElementById('pdfJsViewer').style.display = 'none';
+    previewFrame.src = blobUrl;
+    previewFrame.style.display = 'block';
+    previewLoading.style.display = 'none';
+    previewStatus.textContent = 'Updated';
+}
+    } catch (error) {
+        console.error('Preview generation error:', error);
+        previewFrame.style.display = 'none';
+        document.getElementById('pdfJsViewer').style.display = 'none';
+        previewLoading.style.display = 'flex';
+        previewLoading.textContent = 'Preview error: ' + error.message;
+        previewStatus.textContent = 'Error';
+    }
+}
+
 
         // Main PDF generation function
         function generatePDF() {
@@ -1063,3 +1103,4 @@ function preprocessText(text, preserveLineBreaks = true) {
     </script>
 </body>
 </html>
+
