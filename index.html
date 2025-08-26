@@ -356,9 +356,9 @@ This converter automatically formats your text and provides live preview."></tex
                     <div class="preview-loading" id="previewLoading">
                         Enter text to see preview...
                     </div>
-                    <object id="previewFrame" type="application/pdf" style="display: none;">
-                        <p>PDF preview not supported in this browser.</p>
-                    </object>
+                    <iframe id="previewFrame" style="width:100%; min-height:500px; border:2px solid #e1e5e9; border-radius:8px; display:none;">
+                    </iframe>
+                    
                 </div>
             </div>
             
@@ -940,7 +940,7 @@ function preprocessText(text, preserveLineBreaks = true) {
                 const blobUrl = URL.createObjectURL(pdfBlob);
                 currentPreviewBlob = blobUrl;
                 
-                previewFrame.data = blobUrl;
+                previewFrame.src = blobUrl;
                 previewFrame.style.display = 'block';
                 previewLoading.style.display = 'none';
                 previewStatus.textContent = 'Updated';
