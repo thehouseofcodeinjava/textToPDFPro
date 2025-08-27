@@ -11,16 +11,16 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/*             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             min-height: 100vh;
-            padding: 20px;
+/*             padding: 20px; */
         }
 
         .container {
             max-width: 1600px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 10px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
             width: 100%;
@@ -65,6 +65,24 @@
             border-color: #4facfe;
             box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
         }
+        .format-toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .format-toolbar button {
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f9f9f9;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .format-toolbar button:hover {
+      background: #eef6ff;
+      border-color: #4facfe;
+    }
 
         .controls-panel {
             background: #f8f9fa;
@@ -237,6 +255,12 @@
         <div class="main-content">
             <div class="text-area-section">
                 <div class="text-area-label">Enter your text content</div>
+                 <!-- New Formatting Toolbar -->
+        <div class="format-toolbar">
+          <button type="button" onclick="applyFormatting('bold')"><b>B</b></button>
+          <button type="button" onclick="applyFormatting('italic')"><i>I</i></button>
+          <button type="button" onclick="applyFormatting('underline')"><u>U</u></button>
+        </div>
                 <textarea id="textInput" placeholder="Paste or type your text here...
 
 Example content:
@@ -444,7 +468,20 @@ This converter automatically formats your text and provides live preview."></tex
             sideMargin: { input: document.getElementById('sideMargin'), display: document.getElementById('sideMarginValue'), suffix: 'mm' },
             bottomMargin: { input: document.getElementById('bottomMargin'), display: document.getElementById('bottomMarginValue'), suffix: 'mm' }
         };
+         function applyFormatting(type) {
+            const start = textInput.selectionStart;
+            const end = textInput.selectionEnd;
+            const selectedText = textInput.value.substring(start, end);
 
+             let formatted = selectedText;
+             if (type === 'bold') formatted = `**${selectedText}**`;
+             if (type === 'italic') formatted = `_${selectedText}_`;
+             if (type === 'underline') formatted = `__${selectedText}__`;
+
+             // Replace selected text
+             textInput.setRangeText(formatted, start, end, 'end');
+             textInput.focus();
+         }
         function initializeRanges() {
             Object.keys(rangeInputs).forEach(key => {
                 const range = rangeInputs[key];
